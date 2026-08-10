@@ -60,8 +60,9 @@ before the `infra/` code that reads it.
 - **malli** validates external-world input: EDN files, fragments, IR programs,
   future network calls.
 - **typed.clojure** checks pure internal logic. Opt in with `^:typed.clojure`
-  ns metadata, then add the ns to the `typecheck` task in `bb.edn` and to
-  `.github/workflows/static-analysis.yml`.
+  ns metadata, then add the ns to the `check-ns` call in `bin/analyze` (the
+  gate — `bb check` and CI both delegate to it) and to the standalone
+  `typecheck` task in `bb.edn`. The workflow contains no namespace list.
 - typed.clojure's `Any` is fully strict (not assignable to anything). Do not
   tc-ignore to silence — if the checker can't model it, it's EDN-boundary
   code and belongs to malli. Currently checked: `shx.shape.quote`.
