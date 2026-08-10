@@ -89,7 +89,19 @@ splint=$?
 # 3 ── cljfmt: formatting. --fix applies it.
 sec "cljfmt  (formatting)"
 if [ "$FIX" -eq 1 ]; then
-  clojure -M:cljfmt fix src test && echo "  formatting applied."
+  # A failed fix (read-only file, broken form) must not read as success: record
+  # it as a blocking finding, and verify formatting after any applied fix so a
+  # partial application cannot slip through either.
+  clojure -M:cljfmt fix src test
+  fix_status=$?
+  if [ "$fix_status" -ne 0 ]; then
+    FAIL+=("cljfmt: fix failed (exit $fix_status) — the formatting step did not complete")
+  elif clojure -M:cljfmt check src test >/dev/null 2>&1; then
+    echo "  formatting applied; all files formatted."
+  else
+    clojure -M:cljfmt check src test 2>&1 | tail -20
+    FAIL+=("cljfmt: fix applied but files still need formatting")
+  fi
 else
   if clojure -M:cljfmt check src test >/dev/null 2>&1; then
     echo "  all files formatted."
@@ -109,12 +121,15 @@ lsp_raw=$(mktemp)
 clojure-lsp diagnostics >"$lsp_raw" 2>/dev/null
 lsp_status=$?
 dead=$(grep -i 'unused-public-var' "$lsp_raw")
+# Findings first (clojure-lsp may exit nonzero *because* findings exist), then
+# the analyzer's own exit status — independently of output size, so a crash
+# that emitted partial output can never read as a clean tree.
 if [ -n "$dead" ]; then
   echo "$dead"
   FAIL+=("clojure-lsp: unused public vars present (tree was at 0)")
-elif [ ! -s "$lsp_raw" ] && [ "$lsp_status" -ne 0 ]; then
-  echo "  clojure-lsp produced no output (exit $lsp_status) — the check did not run"
-  FAIL+=("clojure-lsp: no output (exit $lsp_status) — the check did not run")
+elif [ "$lsp_status" -ne 0 ]; then
+  echo "  clojure-lsp exited $lsp_status — the check did not run"
+  FAIL+=("clojure-lsp: exit $lsp_status — the check did not run")
 else
   echo "  none"
 fi
