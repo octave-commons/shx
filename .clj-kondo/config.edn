@@ -1,0 +1,4 @@
+{:linters {:unresolved-symbol {:exclude [(typed.clojure/ann)
+                                         (typed.clojure/defalias)
+                                         (typed.clojure/Rec)]}
+           :unresolved-var {:exclude [typed.clojure]}}}

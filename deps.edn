@@ -1,0 +1,10 @@
+{:paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.3"}
+        metosin/malli {:mvn/version "0.16.4"}
+        org.typedclojure/typed.clj.runtime {:mvn/version "1.4.0"}}
+ :aliases
+ {:test {:extra-paths ["test"]
+         :extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
+         :main-opts ["-m" "kaocha.runner"]}
+  :typecheck {:extra-deps {org.typedclojure/typed.clj.checker {:mvn/version "1.4.0"}}}
+  :run {:main-opts ["-m" "shx.cli"]}}}

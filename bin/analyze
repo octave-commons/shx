@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Local gate, mirrors CI exactly. Exit 0 = green.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+echo "== clj-kondo =="
+clj-kondo --lint src test --fail-level warning
+echo "== typecheck =="
+clojure -M:typecheck -e \
+  "(require 'typed.clj.checker)(typed.clj.checker/check-ns 'shx.shape.quote)(println \"typecheck OK\")"
+echo "== tests =="
+clojure -M:test

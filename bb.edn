@@ -1,0 +1,9 @@
+{:tasks
+ {lint {:doc "clj-kondo, zero warnings contract"
+        :task (shell "clj-kondo --lint src test --fail-level warning")}
+  typecheck {:doc "typed.clojure check of checked namespaces (currently shx.shape.quote; EDN-boundary code is malli's job)"
+             :task (shell "clojure -M:typecheck -e" "(require 'typed.clj.checker)(typed.clj.checker/check-ns 'shx.shape.quote)(println \"typecheck OK\")")}
+  test {:doc "kaocha suite"
+        :task (shell "clojure -M:test")}
+  check {:doc "full gate: lint + typecheck + test"
+         :task (do (run 'lint) (run 'typecheck) (run 'test))}}}
