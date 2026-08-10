@@ -16,6 +16,13 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      # node is here for one reason: jscpd. Without it bin/analyze would SKIP the
+      # duplication check, and --strict turns that skip into a failure — so a
+      # missing node breaks the build loudly instead of quietly not checking.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
       - uses: DeLaGuardo/setup-clojure@13.4
         with:
           cli: "1.12.3.1577"
@@ -23,6 +30,9 @@ jobs:
           # but must be a deliberate bump, not a surprise mid-PR.
           # Matches the version the tree was driven to zero against locally.
           clj-kondo: 2025.07.28
+          # Same policy. clojure-lsp supplies the project-wide dead-code check
+          # (unused public vars), which no per-namespace linter can see.
+          clojure-lsp: 2025.08.25-14.21.46
 
       - uses: actions/cache@v4
         with:
@@ -31,12 +41,16 @@ jobs:
             ~/.gitlibs
           key: deps-${{ hashFiles('deps.edn') }}
 
-      # Zero-warning contract: warnings are failed contracts.
-      - name: clj-kondo
-        run: clj-kondo --lint src test --fail-level warning
-
-      # typed.clojure over the checked (pure, non-EDN-boundary) namespaces.
-      - name: typecheck
-        run: |
-          clojure -M:typecheck -e \
-            "(require 'typed.clj.checker)(typed.clj.checker/check-ns 'shx.shape.quote)(println \"typecheck OK\")"
+      # ONE step, because bin/analyze is the single definition of the gate: seven
+      # blocking checks (clj-kondo, splint, cljfmt, clojure-lsp dead code, jscpd,
+      # typed.clojure, kaocha) in a fixed order. Listing them again as separate
+      # YAML steps is how CI and the local gate drift apart.
+      #
+      # --strict: a check that could not RUN counts as a failure. Interactively
+      # jscpd degrades to a loud skip when node is absent; in CI that would be a
+      # green build that checked less than it claimed.
+      #
+      # Splint's and cljfmt's versions are pinned in deps.edn; jscpd's in
+      # bin/analyze. See docs/static-analysis.md for the tier contract.
+      - name: bin/analyze --strict
+        run: bin/analyze --strict

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Mutation testing for shx (Heretic — EXPERIMENTAL, pre-1.0).
+#
+# Mutation testing asks a sharper question than coverage. Not "was this line
+# run?" but "if I break this line, does a test notice?". A SURVIVING mutant is a
+# real gap: code a test executes but never actually verifies. Coverage cannot see
+# that difference, which is why a suite can be green, well-covered, and still not
+# hold the behaviour it claims to.
+#
+#   bin/mutate                 # collect coverage if stale, then mutate + report
+#   bin/mutate collect         # (re)build the test -> code coverage map only
+#   bin/mutate mutate          # mutate (assumes coverage is collected)
+#   bin/mutate survivors       # surviving mutants from the last run, triaged
+#   bin/mutate no-coverage     # forms no indexed test reaches
+#   bin/mutate status          # which test namespaces need recollection
+#   bin/mutate watch           # continuous mutation testing on file change
+#   bin/mutate clean           # drop the cached coverage index
+#   bin/mutate mutate --files src/shx/domain/merge.clj    # scope to one file
+#
+# Config: heretic.edn. ClojureStorm (a patched Clojure compiler) is swapped in
+# via the deps.edn :heretic alias and is isolated to that alias — the normal
+# build, `bb check`, and CI never load it. Mutation happens in a disposable copy
+# of the tree; your working tree is only ever READ.
+#
+# Scope: shx.domain / shx.law / shx.shape. Read docs/mutation-testing.md before
+# acting on a number from this tool — in particular, "no coverage" has two very
+# different causes here and only one of them is a test gap.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+command -v rsync >/dev/null 2>&1 || \
+  echo "warning: rsync not found — Heretic falls back to a full copy + full re-collect each run (slow)." >&2
+
+# Default to the full pipeline (collect if stale, then mutate) with no subcommand.
+CMD="${1:-mutate}"; [ $# -gt 0 ] && shift
+
+exec clojure -M:heretic -m heretic.core "$CMD" "$@"

@@ -8,7 +8,8 @@
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as str]
-            [shx.law.config :as law]))
+            [shx.law.config :as law])
+  (:import [java.io File]))
 
 (defn warn
   "Print a warning to stderr. Never throws."
@@ -32,8 +33,8 @@
   []
   (or (System/getenv "HOSTNAME")
       (-> (Runtime/getRuntime)
-          (.exec (into-array String ["hostname"]))
-          (.getInputStream)
+          (Runtime/.exec (into-array String ["hostname"]))
+          (Process/.getInputStream)
           (slurp)
           (str/trim))))
 
@@ -41,12 +42,12 @@
   "Read and parse an EDN file. Returns nil (with warning) on any failure."
   [path]
   (let [f (io/file (expand-home path))]
-    (if-not (.isFile f)
-      (do (warn "file not found:" (.getPath f)) nil)
+    (if-not (File/.isFile f)
+      (do (warn "file not found:" (File/.getPath f)) nil)
       (try
         (edn/read-string (slurp f))
         (catch Exception e
-          (warn "bad edn in" (.getPath f) "-" (ex-message e))
+          (warn "bad edn in" (File/.getPath f) "-" (ex-message e))
           nil)))))
 
 (defn read-fragment-tree
@@ -56,20 +57,20 @@
   empty content. seen is a set of canonical paths on the current branch."
   ([path] (read-fragment-tree path #{}))
   ([path seen]
-   (let [f (.getCanonicalFile (io/file (expand-home path)))]
-     (if (contains? seen (.getPath f))
-       (do (warn "cycle in :merge at" (.getPath f))
+   (let [f (File/.getCanonicalFile (io/file (expand-home path)))]
+     (if (contains? seen (File/.getPath f))
+       (do (warn "cycle in :merge at" (File/.getPath f))
            {:content {} :children []})
-       (let [data (read-edn-file (.getPath f))
+       (let [data (read-edn-file (File/.getPath f))
              valid? (and (map? data)
                          (or (law/valid-config? data)
-                             (do (warn "invalid fragment" (.getPath f) "-"
+                             (do (warn "invalid fragment" (File/.getPath f) "-"
                                        (pr-str (law/explain-config data)))
                                  false)))]
          (if-not valid?
            {:content {} :children []}
            {:content (dissoc data :merge)
-            :children (mapv #(read-fragment-tree % (conj seen (.getPath f)))
+            :children (mapv #(read-fragment-tree % (conj seen (File/.getPath f)))
                             (:merge data))}))))))
 
 (defn load-config

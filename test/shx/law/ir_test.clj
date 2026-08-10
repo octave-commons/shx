@@ -19,6 +19,15 @@
 (deftest valid-program-test
   (is (law/valid-program? valid-program)))
 
+(deftest valid-node-test
+  (testing "one node validates on its own, without a program wrapper"
+    (is (law/valid-node? [:export {:name "APP_ENV" :value "dev"}]))
+    (is (law/valid-node? [:pipe [:exec {:argv ["ls"]}] [:exec {:argv ["wc" "-l"]}]])))
+  (testing "a program is not a node"
+    (is (not (law/valid-node? valid-program))))
+  (testing "unknown head rejected"
+    (is (not (law/valid-node? [:frobnicate {:a 1}])))))
+
 (deftest invalid-programs-test
   (testing "unknown head rejected"
     (is (not (law/valid-program? [[:frobnicate {:a 1}]]))))

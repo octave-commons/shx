@@ -10,7 +10,18 @@
     (is (= {:paths-prepend ["a" "b" "c"]}
            (merge/merge-frag {:paths-prepend ["a" "b"]} {:paths-prepend ["c"]}))))
   (testing "scalars: later wins"
-    (is (= {:x 2} (merge/merge-frag {:x 1} {:x 2})))))
+    (is (= {:x 2} (merge/merge-frag {:x 1} {:x 2}))))
+  ;; The "anything else: later wins" rule from the ns docstring. A key whose
+  ;; shape differs between two fragments is ordinary hand-edited-EDN breakage,
+  ;; and without these the `and` guards above could each be an `or` — which
+  ;; reaches (merge {:A "1"} ["x"]) and throws while rendering a login shell.
+  (testing "type collision: later wins, whichever side the collection is on"
+    (is (= {:vars ["x"]}
+           (merge/merge-frag {:vars {:A "1"}} {:vars ["x"]})))
+    (is (= {:vars {:A "1"}}
+           (merge/merge-frag {:vars ["x"]} {:vars {:A "1"}})))
+    (is (= {:paths-prepend "b"}
+           (merge/merge-frag {:paths-prepend ["a"]} {:paths-prepend "b"})))))
 
 (deftest fold-fragment-tree-test
   (testing "grandchild values bubble to the top"

@@ -1,9 +1,36 @@
 {:tasks
- {lint {:doc "clj-kondo, zero warnings contract"
+ {;; ── the gate ───────────────────────────────────────────────────────────────
+  ;; bin/analyze is the single definition of the gate; this task does not
+  ;; re-list the checks, so the two cannot drift apart.
+  check {:doc "the gate: kondo + splint + cljfmt + dead code + jscpd + typecheck + tests"
+         :task (shell "bin/analyze")}
+  fix {:doc "the gate, applying what is safely auto-fixable (cljfmt) first"
+       :task (shell "bin/analyze --fix")}
+
+  ;; ── one check at a time, for a tight loop ──────────────────────────────────
+  lint {:doc "clj-kondo, zero warnings contract"
         :task (shell "clj-kondo --lint src test --fail-level warning")}
+  splint {:doc "splint idiom / anti-pattern lint (.splint.edn)"
+          :task (shell "clojure -M:splint")}
+  fmt {:doc "cljfmt check"
+       :task (shell "clojure -M:cljfmt check src test")}
+  fmt:fix {:doc "cljfmt rewrite in place"
+           :task (shell "clojure -M:cljfmt fix src test")}
+  dead {:doc "clojure-lsp: unused public vars (project-wide dead code)"
+        :task (shell "clojure-lsp diagnostics")}
+  dupes {:doc "jscpd copy-paste duplication (.jscpd.json, threshold 0)"
+         :task (shell "npx --yes jscpd@4.2.5")}
   typecheck {:doc "typed.clojure check of checked namespaces (currently shx.shape.quote; EDN-boundary code is malli's job)"
              :task (shell "clojure -M:typecheck -e" "(require 'typed.clj.checker)(typed.clj.checker/check-ns 'shx.shape.quote)(println \"typecheck OK\")")}
   test {:doc "kaocha suite"
         :task (shell "clojure -M:test")}
-  check {:doc "full gate: lint + typecheck + test"
-         :task (do (run 'lint) (run 'typecheck) (run 'test))}}}
+
+  ;; ── mutation testing: a separate, slower, advisory loop ────────────────────
+  ;; Not part of `check`: it swaps the Clojure compiler (ClojureStorm) and its
+  ;; output is a score to act on, not a pass/fail. docs/mutation-testing.md.
+  mutate {:doc "heretic mutation testing over the pure layers (EXPERIMENTAL)"
+          :task (shell "bin/mutate")}
+  mutate:survivors {:doc "surviving mutants from the last heretic run"
+                    :task (shell "bin/mutate survivors")}
+  mutate:gaps {:doc "mutation sites no indexed test reaches"
+               :task (shell "bin/mutate no-coverage")}}}

@@ -1,0 +1,33 @@
+{:tasks-dir "./kanban"
+ :board-file "kanban/.kanban/board.json"
+
+ ;; The promethean FSM, with one override: its build gate runs SHX's gate.
+ ;;
+ ;; `:promethean` alone inherits a build gate of ["pnpm build" "pnpm lint"
+ ;; "pnpm test"], which is the eta-mu monorepo's gate and does not exist here —
+ ;; there is no pnpm in this repo. A gate whose commands are absent is not a
+ ;; gate; it is a refusal (or worse, a check that means nothing).
+ ;;
+ ;; So `in_progress -> review` now costs `bin/analyze --strict`: clj-kondo,
+ ;; splint, cljfmt, dead code, jscpd, typed.clojure, and the test suite, all
+ ;; blocking, with a skipped check counted as a failure. A card cannot be
+ ;; presented for review by anyone — human or agent — while the tree is red.
+ ;; That is the point: "it's done" stops being a claim and becomes an exit code.
+ ;;
+ ;; `:cwd "."` is resolved relative to THIS file by rheos, so the gate runs in
+ ;; the repo root no matter where the CLI is invoked from.
+ ;;
+ ;; Every other transition uses :always-allow, and the WIP limits are
+ ;; promethean's own (in_progress 50, review 40, ...) — eta-mu-scale numbers that
+ ;; do not bind at shx's size. Today rheos only lets `:extends` override the
+ ;; build-gate commands, so tighter limits are not expressible from here.
+ ;; See docs/kanban/writing-cards.md › What the FSM does not enforce yet.
+ :fsm {:extends :promethean
+       :build-gate-commands ["bin/analyze --strict"]
+       :cwd "."}
+
+ :meta
+ {:epic "hexis — unify shx (shell intent IR) and muse (agent config) on one EDN substrate"
+  :chat
+  {:backend :sol
+   :model "gemma4:31b"}}}

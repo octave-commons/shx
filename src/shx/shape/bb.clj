@@ -10,6 +10,7 @@
 
 (defmulti emit
   "Emit one IR node as Clojure source text, or nil if unsupported."
+  {:arglists '([node])}
   (fn [node] (when (vector? node) (first node))))
 
 (defmethod emit :export [[_ {:keys [name value]}]]
