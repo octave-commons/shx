@@ -33,7 +33,7 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law` and `superviso
 
 ```bash
 bb check
-bb mutate   # emitter namespace has no surviving mutants
+bb mutate   # nonzero mutants generated for the emitter namespace, none surviving
 ```
 
 ## Scope

@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:28.433Z"
 
 ## Outcome
 
-A stack renders to an ecosystem JSON document; `check` diffs the stack against live pm2 state (pm2 jlist); `apply` converges live state for apps whose name starts with the stack's `:stack/scope` prefix and leaves every resource outside that scope untouched.
+A stack renders to an ecosystem JSON document; `check` diffs the stack against live pm2 state (pm2 jlist); `apply` converges live state for apps whose name starts with the delimited prefix `<:stack/scope>-` (the same prefix `scope` produces in `supervisor-ir-merge-law`) and leaves every resource outside that scope untouched.
 
 ## Context
 
@@ -27,13 +27,14 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law` and `superviso
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the pm2 golden file.
 - [ ] GIVEN a stack using a feature pm2 cannot express WHEN rendered THEN the unsupported-feature report equals its pm2 golden file, and nothing is silently dropped.
 - [ ] GIVEN live state equal to the stack WHEN `check` runs THEN it reports zero diff; GIVEN one changed unit THEN it reports exactly that unit.
+- [ ] GIVEN scope `svc` and an unmanaged resource named `svcadmin` WHEN `apply` runs THEN it is not treated as owned and is untouched (only `svc-…` names are owned).
 - [ ] GIVEN a resource inside the owned scope that the stack no longer declares WHEN `apply` runs THEN it is stopped/removed; GIVEN a resource outside the scope THEN it is untouched (both asserted).
 
 ## Verification
 
 ```bash
 bb check
-bb mutate   # emitter namespace has no surviving mutants
+bb mutate   # nonzero mutants generated for the emitter namespace, none surviving
 ```
 
 ## Scope

@@ -33,7 +33,7 @@ Source: `open-hax/foresight` `clobber/src/pm2_clj/merge.cljs` and `clobber/src/p
 
 ```bash
 bb check
-bb mutate   # no surviving mutants in shx.domain.supervisor-merge
+bb mutate   # nonzero mutants generated for shx.domain.supervisor-merge (needs supervisor-ir-law's .cljc scan), none surviving
 ```
 
 ## Scope

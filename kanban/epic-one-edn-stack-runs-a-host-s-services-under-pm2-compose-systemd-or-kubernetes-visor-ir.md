@@ -42,7 +42,7 @@ The whole epic is blocked by `shx-kanban-port-shx-to-cljc` and `shx-kanban-hexis
 
 ## Definition of done
 
-The Knoxx dev stack on `stealth` runs from one EDN stack via `apply`, and `check` reports zero diff against live pm2 state.
+For each of pm2, docker compose, systemd user units and Kubernetes, a fixture stack renders, `apply` converges it, and `check` then reports zero diff, with resources outside the owned scope unchanged. The Knoxx dev stack on `stealth` runs from one EDN stack this way on pm2.
 
 ## Verification
 

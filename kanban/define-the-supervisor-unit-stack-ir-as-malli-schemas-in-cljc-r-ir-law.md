@@ -28,12 +28,13 @@ First child of `shx-kanban-supervisor-ir`. Every emitter and adapter consumes th
 - [ ] GIVEN a stack missing `:stack/scope` WHEN validated THEN `explain-stack` names `:stack/scope`.
 - [ ] GIVEN a unit whose `:needs` names an undeclared unit WHEN validated THEN validation fails naming both units.
 - [ ] VERIFY: no schema name collides with a Katamorph-owned name.
+- [ ] GIVEN `heretic.edn` WHEN `bb mutate` runs THEN it scans `.cljc` sources too (today it scans only `.clj`, `heretic.edn:23`), and its report lists a nonzero mutant count for `shx.law.supervisor`. A zero-mutant report fails this criterion.
 
 ## Verification
 
 ```bash
 bb check
-bb mutate   # no surviving mutants in shx.law.supervisor
+bb mutate   # nonzero mutants generated for shx.law.supervisor, none surviving
 ```
 
 ## Scope
