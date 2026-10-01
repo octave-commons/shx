@@ -30,6 +30,10 @@ jobs:
           # but must be a deliberate bump, not a surprise mid-PR.
           # Matches the version the tree was driven to zero against locally.
           clj-kondo: 2025.07.28
+          # clojure-lsp discovers the classpath with `bb print-deps` because the
+          # repo has a bb.edn; without babashka it exits 1 ("Cannot run program
+          # bb") and the dead-code check never runs. Pinned like the rest.
+          bb: 1.12.207
           # NOTE: do NOT add `clojure-lsp:` here. This action has no such input:
           # it warns "Unexpected input(s) 'clojure-lsp'" and ignores it, so
           # bin/analyze --strict failed with "not on PATH: clojure-lsp" on every
@@ -70,12 +74,5 @@ jobs:
       #
       # Splint's and cljfmt's versions are pinned in deps.edn; jscpd's in
       # bin/analyze. See docs/static-analysis.md for the tier contract.
-      # bin/analyze discards clojure-lsp's stderr (it keeps stdout to tell
-      # "clean" from "never ran"). Run it once here with output visible, so a
-      # crash in CI shows its cause instead of only "exited 1". Non-blocking:
-      # the gate below is still the judge.
-      - name: clojure-lsp diagnostics (visible output)
-        run: clojure-lsp diagnostics || echo "clojure-lsp exited $?"
-
       - name: bin/analyze --strict
         run: bin/analyze --strict
