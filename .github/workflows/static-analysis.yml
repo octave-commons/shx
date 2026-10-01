@@ -70,5 +70,12 @@ jobs:
       #
       # Splint's and cljfmt's versions are pinned in deps.edn; jscpd's in
       # bin/analyze. See docs/static-analysis.md for the tier contract.
+      # bin/analyze discards clojure-lsp's stderr (it keeps stdout to tell
+      # "clean" from "never ran"). Run it once here with output visible, so a
+      # crash in CI shows its cause instead of only "exited 1". Non-blocking:
+      # the gate below is still the judge.
+      - name: clojure-lsp diagnostics (visible output)
+        run: clojure-lsp diagnostics || echo "clojure-lsp exited $?"
+
       - name: bin/analyze --strict
         run: bin/analyze --strict
