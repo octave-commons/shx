@@ -32,7 +32,10 @@ The recovered `clobber` (pm2-clj) DSL is the predecessor. It lives at
   `port-shx-to-cljc` and `hexis-assembler`.
 - Authority: render, check **and** apply.
 - Targets: pm2, docker compose, systemd, Kubernetes.
-- clobber: port it whole, then refactor.
+- clobber: copied whole into `foresight/clobber/` as a consolidation input
+  (open-hax/foresight#120). The port into shx/Hexis carries only the supported
+  semantics listed under Shape, omits everything under "Must not carry over",
+  and fixes the merge-by-name bug before porting.
 
 ## Shape
 
@@ -57,9 +60,18 @@ The recovered `clobber` (pm2-clj) DSL is the predecessor. It lives at
 
 ## Definition of Done
 
-- One EDN stack renders to all four targets, and the outputs are golden-tested.
+- A shared EDN stack that uses only features all four targets support renders
+  to each target, and each output is golden-tested.
+- Separate golden tests per target cover the unsupported-feature report for
+  stacks that use features that target cannot express.
 - `check` reports zero diff for a stack after `apply`.
-- `apply` refuses to restart processes that are not declared in the stack.
+- Each adapter defines the resource scope it owns (for example, pm2 apps with
+  the stack's name prefix, or the compose project, unit name prefix, or k8s
+  namespace and labels).
+- `apply` may start, stop, restart, replace or remove resources only within that
+  owned scope, and never touches resources outside it.
+- Acceptance tests cover, for each adapter, destructive mutations inside the
+  scope and the preservation of resources outside it.
 - The Knoxx dev stack (`knoxx-shadow`, `knoxx-backend`, `knoxx-frontend`,
   `knoxx-ingestion`) is described in EDN and replaces
   `~/devel/services/openplanner/ecosystem.host.config.cjs` for that host.
