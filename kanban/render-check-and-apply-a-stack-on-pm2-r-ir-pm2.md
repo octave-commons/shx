@@ -40,6 +40,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 ## Scope
 
 - `src/shx/shape/supervisor_pm2.cljc`, `src/shx/infra/supervisor_pm2.clj`, golden files under `test/resources/supervisor/pm2/`
+- `test/shx/shape/supervisor_pm2_test.clj` (goldens) and `test/shx/infra/supervisor_pm2_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points
 

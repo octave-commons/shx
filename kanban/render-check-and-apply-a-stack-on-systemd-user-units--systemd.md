@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:28.899Z"
 
 ## Outcome
 
-A stack renders to one unit file per unit; `check` diffs the stack against live systemd (user units) state (systemctl --user show / list-units); `apply` converges live state for user units whose name starts with the delimited prefix `<:stack/scope>-` (the same prefix `scope` produces in `supervisor-ir-merge-law`) and leaves every resource outside that scope untouched.
+A stack renders to one unit file per unit; `check` diffs the stack against live systemd (user units) state (`systemctl --user list-unit-files '<scope>-*'` plus a scan of the user unit directory `~/.config/systemd/user/` for owned files, because `list-units` shows only units currently in memory and misses disabled, unloaded ones; `show` for state); `apply` converges live state for user units whose name starts with the delimited prefix `<:stack/scope>-` (the same prefix `scope` produces in `supervisor-ir-merge-law`) and leaves every resource outside that scope untouched.
 
 ## Context
 
@@ -28,6 +28,7 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law` and `superviso
 - [ ] GIVEN a stack using a feature systemd (user units) cannot express WHEN rendered THEN the unsupported-feature report equals its systemd golden file, and nothing is silently dropped.
 - [ ] GIVEN live state equal to the stack WHEN `check` runs THEN it reports zero diff; GIVEN one changed unit THEN it reports exactly that unit.
 - [ ] GIVEN scope `svc` and an unmanaged resource named `svcadmin` WHEN `apply` runs THEN it is not treated as owned and is untouched (only `svc-…` names are owned).
+- [ ] GIVEN a previously managed unit that is disabled and unloaded but whose unit file remains WHEN `check` runs THEN it reports that unit as stale, and `apply` removes its file.
 - [ ] GIVEN a resource inside the owned scope that the stack no longer declares WHEN `apply` runs THEN it is stopped/removed; GIVEN a resource outside the scope THEN it is untouched (both asserted).
 
 ## Verification
@@ -40,6 +41,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 ## Scope
 
 - `src/shx/shape/supervisor_systemd.cljc`, `src/shx/infra/supervisor_systemd.clj`, golden files under `test/resources/supervisor/systemd/`
+- `test/shx/shape/supervisor_systemd_test.clj` (goldens) and `test/shx/infra/supervisor_systemd_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points
 

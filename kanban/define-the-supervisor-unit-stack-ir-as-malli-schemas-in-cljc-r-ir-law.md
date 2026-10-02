@@ -24,7 +24,8 @@ First child of `shx-kanban-supervisor-ir`. Every emitter and adapter consumes th
 
 ## Acceptance criteria
 
-- [ ] GIVEN a unit with `:exec`, `:cwd`, `:env`, `:ports`, `:needs`, `:health`, `:restart`, `:replicas`, optional `:image`, `:volumes`, `:user` WHEN validated THEN it passes.
+- [ ] GIVEN a unit with `:exec` (whose existing `:dir` and `:env` fields, `src/shx/law/ir.clj:23-27`, are the **only** working-directory and environment authority), `:ports`, `:needs`, `:health`, `:restart`, `:replicas`, optional `:image`, `:volumes`, `:user` WHEN validated THEN it passes.
+- [ ] GIVEN a unit that carries its own `:cwd` or `:env` WHEN validated THEN validation fails, naming the key and pointing at `:exec`'s `:dir`/`:env`, so no adapter has to pick a precedence.
 - [ ] GIVEN a stack missing `:stack/scope` WHEN validated THEN `explain-stack` names `:stack/scope`.
 - [ ] GIVEN a unit whose `:needs` names an undeclared unit WHEN validated THEN validation fails naming both units.
 - [ ] VERIFY: no schema name collides with a Katamorph-owned name.
@@ -40,6 +41,7 @@ bb mutate   # nonzero mutants generated for shx.law.supervisor, none surviving
 ## Scope
 
 - `src/shx/law/supervisor.cljc`, `test/shx/law/supervisor_test.clj`
+- `heretic.edn` and `bin/mutate` (plus any Heretic dependency change in `deps.edn`): needed for the `.cljc` mutation-scan criterion
 
 ## Reference points
 
