@@ -1,14 +1,14 @@
 ---
-uuid: "supervisor-ir-law"
-title: "Define the supervisor unit/stack IR as Malli schemas in .cljc"
-status: "incoming"
-type: "task"
-priority: "P1"
-points: "3"
+category: "kanban"
 labels: "shx, hexis, design"
 parent: "shx-kanban-supervisor-ir"
-category: "kanban"
-write-id: "1790897667999-0.vjqypig5i74n3ok8h0"
+type: "task"
+write-id: "1790903195733-0.tegvvab9ddjeg8lw8p"
+points: "3"
+title: "Define the supervisor unit/stack IR as Malli schemas in .cljc"
+priority: "P1"
+status: "incoming"
+uuid: "supervisor-ir-law"
 created_at: "2026-10-01T23:34:27.999Z"
 ---
 
@@ -50,3 +50,7 @@ bb mutate   # nonzero KILLED mutants in shx.law.supervisor executable code, none
 ## Anti-patterns
 
 - Do not encode target-specific keys (pm2 `exec_mode`, k8s `spec`) in the IR; targets map from the IR, not into it.
+
+---
+Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
+---

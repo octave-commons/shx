@@ -1,14 +1,14 @@
 ---
-uuid: "supervisor-ir-knoxx-dev-stack"
-title: "Describe the Knoxx dev stack in EDN and run it via apply"
-status: "incoming"
-type: "task"
-priority: "P1"
-points: "2"
+category: "kanban"
 labels: "shx, hexis, knoxx"
 parent: "shx-kanban-supervisor-ir"
-category: "kanban"
-write-id: "1790897669339-0.2mbvq96epumz79p2cfb"
+type: "task"
+write-id: "1790903197039-0.t434b1k6ixlqozwdti"
+points: "2"
+title: "Describe the Knoxx dev stack in EDN and run it via apply"
+priority: "P1"
+status: "incoming"
+uuid: "supervisor-ir-knoxx-dev-stack"
 created_at: "2026-10-01T23:34:29.339Z"
 ---
 
@@ -38,3 +38,7 @@ pm2 jlist | jq -r '.[] | [.name, .pm2_env.status, .pm2_env.pm_cwd] | @tsv'
 ## Anti-patterns
 
 - Do not restart Knoxx processes without the user's explicit go-ahead (knoxx/AGENTS.md).
+
+---
+Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
+---

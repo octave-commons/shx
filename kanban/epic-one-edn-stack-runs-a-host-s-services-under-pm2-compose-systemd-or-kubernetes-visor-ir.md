@@ -1,14 +1,14 @@
 ---
-uuid: "shx-kanban-supervisor-ir"
-title: "EPIC: one EDN stack runs a host's services under pm2, compose, systemd or Kubernetes"
-status: "incoming"
-type: "epic"
-priority: "P1"
-points: "13"
+category: "kanban"
 labels: "shx, hexis, design"
 parent: "shx-kanban-hexis-unification-epic"
-category: "kanban"
-write-id: "1790897662395-0.hjdqvl8auvkfllf39rt"
+type: "epic"
+write-id: "1790903195519-0.yqbzp9fivv84q8j5ggc"
+points: "13"
+title: "EPIC: one EDN stack runs a host's services under pm2, compose, systemd or Kubernetes"
+priority: "P1"
+status: "incoming"
+uuid: "shx-kanban-supervisor-ir"
 created_at: "2026-10-01T23:34:22.395Z"
 ---
 
@@ -55,3 +55,7 @@ bb mutate   # law/domain/shape survivors reviewed
 
 - Secrets and environment-file management (services repository).
 - Remote/multi-host orchestration (the mesh); this epic is one host at a time.
+
+---
+Body revised while incoming, during planning review on octave-commons/shx#2: 3ca71e4 widened the Definition of done to all four adapters (fixture render + apply + zero-diff check per target, out-of-scope preserved), not only pm2. The task-created event holds the original body; the Markdown body is the current contract.
+---

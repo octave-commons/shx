@@ -1,14 +1,14 @@
 ---
-uuid: "supervisor-ir-pm2"
-title: "Render, check and apply a stack on pm2"
-status: "incoming"
-type: "task"
-priority: "P1"
-points: "3"
+category: "kanban"
 labels: "shx, hexis"
 parent: "shx-kanban-supervisor-ir"
-category: "kanban"
-write-id: "1790897668433-0.c66y8xn24uib0e18uo"
+type: "task"
+write-id: "1790903196159-0.waud71mejshmko9816c"
+points: "3"
+title: "Render, check and apply a stack on pm2"
+priority: "P1"
+status: "incoming"
+uuid: "supervisor-ir-pm2"
 created_at: "2026-10-01T23:34:28.433Z"
 ---
 
@@ -52,3 +52,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 - No `:default` emit method that returns nil; unsupported features go into the report.
 - `apply` never acts outside the owned scope, even to "clean up".
+
+---
+Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
+---
