@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:29.115Z"
 
 ## Outcome
 
-A stack renders to Deployment and Service manifests; `check` diffs the stack against live Kubernetes state (kubectl get -o json); `apply` converges live state for the namespace and `app.kubernetes.io/part-of=<scope>` label set by `:stack/scope` and leaves every resource outside that scope untouched.
+A stack renders to Deployment and Service manifests; `check` diffs the stack against live Kubernetes state (kubectl get -o json); `apply` converges live state for resources in the stack's namespace that carry the adapter's own ownership marker, label `shx.dev/managed-by=<:stack/scope>` (and `app.kubernetes.io/managed-by=shx`), written only by this adapter. `app.kubernetes.io/part-of` is descriptive and never authorises deletion and leaves every resource outside that scope untouched.
 
 ## Context
 
@@ -24,9 +24,11 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law` and `superviso
 
 ## Acceptance criteria
 
+- [ ] VERIFY: `heretic.edn` `:exclude-files` lists `src/shx/infra/supervisor_k8s.clj`, and `bb mutate` reports no no-coverage sites in that file.
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the k8s golden file.
 - [ ] GIVEN a stack using a feature Kubernetes cannot express WHEN rendered THEN the unsupported-feature report equals its k8s golden file, and nothing is silently dropped.
 - [ ] GIVEN live state equal to the stack WHEN `check` runs THEN it reports zero diff; GIVEN one changed unit THEN it reports exactly that unit.
+- [ ] GIVEN a resource with `app.kubernetes.io/part-of=<scope>` but without `shx.dev/managed-by=<scope>` WHEN `apply` runs THEN it is untouched, even though it matches the application label.
 - [ ] GIVEN a resource inside the owned scope that the stack no longer declares WHEN `apply` runs THEN it is stopped/removed; GIVEN a resource outside the scope THEN it is untouched (both asserted).
 
 ## Verification
@@ -39,6 +41,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 ## Scope
 
 - `src/shx/shape/supervisor_k8s.cljc`, `src/shx/infra/supervisor_k8s.clj`, golden files under `test/resources/supervisor/k8s/`
+- `heretic.edn` `:exclude-files`: add `src/shx/infra/supervisor_k8s.clj` (path-suffix match, `heretic.edn:30-36`), or it silently joins the permanent no-coverage list.
 - `test/shx/shape/supervisor_k8s_test.clj` (goldens) and `test/shx/infra/supervisor_k8s_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points

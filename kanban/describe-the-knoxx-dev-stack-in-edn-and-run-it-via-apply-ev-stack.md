@@ -27,6 +27,7 @@ Observed 2026-10-01: the running Knoxx dev processes use an Aug-01 checkout at `
 - [ ] GIVEN the EDN stack WHEN rendered for pm2 THEN every app's `cwd` is under the Foresight `knoxx` checkout.
 - [ ] GIVEN `apply` on stealth THEN all four apps are online and `check` reports zero diff.
 - [ ] VERIFY: pm2 apps outside the stack's scope (sol, muse, mnemosyne, bitch-tracker, shoedelussy) are unchanged before and after.
+- [ ] GIVEN the live inventory of every pm2 app whose name starts with `knoxx-` (recorded before `apply`, e.g. also `knoxx-stt-npu` if present) THEN each undeclared match is either added to the stack or approved for removal by the user before `apply`. After `apply`, the `knoxx-` inventory is exactly the declared set.
 
 ## Verification
 

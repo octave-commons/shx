@@ -29,13 +29,13 @@ First child of `shx-kanban-supervisor-ir`. Every emitter and adapter consumes th
 - [ ] GIVEN a stack missing `:stack/scope` WHEN validated THEN `explain-stack` names `:stack/scope`.
 - [ ] GIVEN a unit whose `:needs` names an undeclared unit WHEN validated THEN validation fails naming both units.
 - [ ] VERIFY: no schema name collides with a Katamorph-owned name.
-- [ ] GIVEN `heretic.edn` WHEN `bb mutate` runs THEN it scans `.cljc` sources too (today it scans only `.clj`, `heretic.edn:23`), and its report lists a nonzero mutant count for `shx.law.supervisor`. A zero-mutant report fails this criterion.
+- [ ] GIVEN `heretic.edn` WHEN `bb mutate` runs THEN it scans `.cljc` sources too (today it scans only `.clj`, `heretic.edn:23`), and its report shows a nonzero **killed** count from executable code in `shx.law.supervisor`, such as the cross-unit `:needs` and `:cwd`/`:env` rejection functions. Top-level Malli schema literals are never mutated (`docs/mutation-testing.md:127-142`, carded as `heretic-schema-literal-attribution`), so for each schema constraint a test must assert that an input violating it is rejected. A report with zero killed mutants fails this criterion.
 
 ## Verification
 
 ```bash
 bb check
-bb mutate   # nonzero mutants generated for shx.law.supervisor, none surviving
+bb mutate   # nonzero KILLED mutants in shx.law.supervisor executable code, none surviving
 ```
 
 ## Scope

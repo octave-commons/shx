@@ -26,7 +26,10 @@ Source: `open-hax/foresight` `clobber/src/pm2_clj/merge.cljs` and `clobber/src/p
 
 - [ ] GIVEN base and override unit vectors sharing a `:name` WHEN merged THEN the result has one unit per name, deep-merged, in first-seen order (regression for the shadowing bug).
 - [ ] GIVEN an override value `::remove` WHEN merged THEN the key is absent from the result.
-- [ ] GIVEN a profile `:prod` WHEN applied THEN only units the profile names change.
+- [ ] GIVEN a profile `:prod` that sets `{:replicas 2}` on unit `api` WHEN applied to fixture stack `{api, worker}` THEN `api` has `:replicas 2`, all of `worker` and every other `api` key are unchanged, and the result equals the golden `test/resources/supervisor/merge/profile-prod.edn`.
+- [ ] GIVEN unit `api` that `extends` a base unit with `:restart :always` and overrides `:replicas` THEN the result has both, and the override wins (golden `extends.edn`).
+- [ ] GIVEN two mixins that set the same key WHEN applied in order THEN the later mixin's value wins (golden `mixins.edn`).
+- [ ] GIVEN tiers `[:base :dev]` THEN `:dev` values deep-merge over `:base`, and `::remove` in `:dev` deletes the key (golden `tiers.edn`).
 - [ ] GIVEN `scope "svc"` WHEN applied THEN every unit name gains the `svc-` prefix.
 
 ## Verification

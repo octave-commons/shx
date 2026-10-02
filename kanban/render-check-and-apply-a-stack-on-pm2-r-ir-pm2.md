@@ -24,6 +24,7 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law` and `superviso
 
 ## Acceptance criteria
 
+- [ ] VERIFY: `heretic.edn` `:exclude-files` lists `src/shx/infra/supervisor_pm2.clj`, and `bb mutate` reports no no-coverage sites in that file.
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the pm2 golden file.
 - [ ] GIVEN a stack using a feature pm2 cannot express WHEN rendered THEN the unsupported-feature report equals its pm2 golden file, and nothing is silently dropped.
 - [ ] GIVEN live state equal to the stack WHEN `check` runs THEN it reports zero diff; GIVEN one changed unit THEN it reports exactly that unit.
@@ -40,6 +41,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 ## Scope
 
 - `src/shx/shape/supervisor_pm2.cljc`, `src/shx/infra/supervisor_pm2.clj`, golden files under `test/resources/supervisor/pm2/`
+- `heretic.edn` `:exclude-files`: add `src/shx/infra/supervisor_pm2.clj` (path-suffix match, `heretic.edn:30-36`), or it silently joins the permanent no-coverage list.
 - `test/shx/shape/supervisor_pm2_test.clj` (goldens) and `test/shx/infra/supervisor_pm2_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points
