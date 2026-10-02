@@ -3,7 +3,7 @@ category: "kanban"
 labels: "shx, hexis"
 parent: "shx-kanban-supervisor-ir"
 type: "task"
-write-id: "1790903195945-0.c81lvh547yw3dezsj9y"
+write-id: "1790907650060-0.e9or7iup6f5e54gz10q"
 points: "3"
 title: "Port clobber's merge and prototype semantics to pure .cljc"
 priority: "P1"
@@ -30,7 +30,7 @@ Source: `open-hax/foresight` `clobber/src/pm2_clj/merge.cljs` and `clobber/src/p
 - [ ] GIVEN unit `api` that `extends` a base unit with `:restart :always` and overrides `:replicas` THEN the result has both, and the override wins (golden `extends.edn`).
 - [ ] GIVEN two mixins that set the same key WHEN applied in order THEN the later mixin's value wins (golden `mixins.edn`).
 - [ ] GIVEN tiers `[:base :dev]` THEN `:dev` values deep-merge over `:base`, and `::remove` in `:dev` deletes the key (golden `tiers.edn`).
-- [ ] GIVEN `scope "svc"` WHEN applied THEN every unit name gains the `svc-` prefix.
+- [ ] GIVEN `scope "svc"` on units `api` and `worker`, where `api` has `:needs ["worker"]`, WHEN applied THEN names become `svc-api` and `svc-worker`, `api`'s dependency becomes `:needs ["svc-worker"]`, and the resulting stack passes supervisor-law validation. All unit-name references are rewritten together.
 
 ## Verification
 
@@ -54,4 +54,6 @@ bb mutate   # nonzero mutants generated for shx.domain.supervisor-merge (needs s
 
 ---
 Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
+
+Review round 5 (Codex) on octave-commons/shx#2: scope acceptance now rewrites :needs references along with unit identities; commit pending.
 ---

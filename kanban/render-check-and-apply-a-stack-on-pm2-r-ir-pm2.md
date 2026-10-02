@@ -3,7 +3,7 @@ category: "kanban"
 labels: "shx, hexis"
 parent: "shx-kanban-supervisor-ir"
 type: "task"
-write-id: "1790903196159-0.waud71mejshmko9816c"
+write-id: "1790907650323-0.d554m2avw5vvssggqgy"
 points: "3"
 title: "Render, check and apply a stack on pm2"
 priority: "P1"
@@ -20,10 +20,11 @@ A stack renders to an ecosystem JSON document; `check` diffs the stack against l
 
 ## Context
 
-Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law` and `supervisor-ir-merge-law`. Emitter is pure (`shape/`); live reads and writes are `infra/` adapters.
+Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law`, `supervisor-ir-live-state-law` and `supervisor-ir-merge-law`. Emitter is pure (`shape/`); live reads and writes are `infra/` adapters. Validate the complete target-specific live-state payload before computing a diff or any destructive action; an invalid or truncated response must fail closed.
 
 ## Acceptance criteria
 
+- [ ] GIVEN truncated, malformed or version-shifted live output WHEN `check` or `apply` runs THEN the target live-state contract rejects it with a path and no mutation occurs; a valid empty response remains distinguishable.
 - [ ] VERIFY: `heretic.edn` `:exclude-files` lists `src/shx/infra/supervisor_pm2.clj`, and `bb mutate` reports no no-coverage sites in that file.
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the pm2 golden file.
 - [ ] GIVEN a stack using a feature pm2 cannot express WHEN rendered THEN the unsupported-feature report equals its pm2 golden file, and nothing is silently dropped.
@@ -55,4 +56,6 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 ---
 Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
+
+Review round 5 (Codex) on octave-commons/shx#2: adapter now depends on supervisor-ir-live-state-law and fails closed on invalid external payloads before check/apply; commit pending.
 ---
