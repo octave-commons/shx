@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:28.661Z"
 
 ## Outcome
 
-A stack renders to compose YAML; `check` diffs the stack against live docker compose state (docker compose -p <scope> config / ps --format json); `apply` converges live state for the compose project named by `:stack/scope` and leaves every resource outside that scope untouched.
+A stack renders to compose YAML; `check` diffs the stack against live docker compose state (`docker compose -p <scope> config` / `docker compose -p <scope> ps --all --format json`); `apply` converges live state for the compose project named by `:stack/scope` and leaves every resource outside that scope untouched.
 
 ## Context
 
@@ -29,6 +29,7 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law`, `supervisor-i
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the compose golden file.
 - [ ] GIVEN a stack using a feature docker compose cannot express WHEN rendered THEN the unsupported-feature report equals its compose golden file, and nothing is silently dropped.
 - [ ] GIVEN live state equal to the stack WHEN `check` runs THEN it reports zero diff; GIVEN one changed unit THEN it reports exactly that unit.
+- [ ] GIVEN an exited in-scope container that the desired stack no longer declares in the live-state fixture WHEN `check` queries `docker compose -p <scope> ps --all --format json` THEN the container is included in the validated inventory and appears in the diff rather than being omitted as if absent.
 - [ ] GIVEN a resource inside the owned scope that the stack no longer declares WHEN `apply` runs THEN it is stopped/removed; GIVEN a resource outside the scope THEN it is untouched (both asserted).
 
 ## Verification
@@ -42,7 +43,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 - `src/shx/shape/supervisor_compose.cljc`, `src/shx/infra/supervisor_compose.clj`, golden files under `test/resources/supervisor/compose/`
 - `heretic.edn` `:exclude-files`: add `src/shx/infra/supervisor_compose.clj` (path-suffix match, `heretic.edn:30-36`), or it silently joins the permanent no-coverage list.
-- `test/shx/shape/supervisor_compose_test.clj` (goldens) and `test/shx/infra/supervisor_compose_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
+- `test/shx/shape/supervisor_compose_test.clj` (goldens) and `test/shx/infra/supervisor_compose_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, exited-container inventory/diff, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points
 

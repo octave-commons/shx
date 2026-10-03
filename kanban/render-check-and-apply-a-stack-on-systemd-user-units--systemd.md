@@ -31,6 +31,7 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law`, `supervisor-i
 - [ ] GIVEN live state equal to the stack WHEN `check` runs THEN it reports zero diff; GIVEN one changed unit THEN it reports exactly that unit.
 - [ ] GIVEN scope `svc` and an unmanaged resource named `svcadmin` WHEN `apply` runs THEN it is not treated as owned and is untouched (only `svc-…` names are owned).
 - [ ] GIVEN a previously managed unit that is disabled and unloaded but whose unit file remains WHEN `check` runs THEN it reports that unit as stale, and `apply` removes its file.
+- [ ] WHEN `apply` writes or removes user unit files THEN it runs `systemctl --user daemon-reload` before relying on the manager's updated unit-file state; tests assert that removed units no longer appear in the manager's inventory.
 - [ ] GIVEN a resource inside the owned scope that the stack no longer declares WHEN `apply` runs THEN it is stopped/removed; GIVEN a resource outside the scope THEN it is untouched (both asserted).
 
 ## Verification
@@ -44,7 +45,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 - `src/shx/shape/supervisor_systemd.cljc`, `src/shx/infra/supervisor_systemd.clj`, golden files under `test/resources/supervisor/systemd/`
 - `heretic.edn` `:exclude-files`: add `src/shx/infra/supervisor_systemd.clj` (path-suffix match, `heretic.edn:30-36`), or it silently joins the permanent no-coverage list.
-- `test/shx/shape/supervisor_systemd_test.clj` (goldens) and `test/shx/infra/supervisor_systemd_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
+- `test/shx/shape/supervisor_systemd_test.clj` (goldens) and `test/shx/infra/supervisor_systemd_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal, daemon-reload ordering, removed-unit inventory absence and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points
 
