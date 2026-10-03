@@ -17,9 +17,16 @@ write IDs/events or hand-edit lifecycle state. Use the canonical Rheos CLI for
 create, comments, descriptive frontmatter updates, and transitions; once scope
 leaves breakdown, clarify it through comments.
 
-Use an upstream-installed `rheos` executable on PATH. If using an upstream-built
-artifact instead, set `RHEOS_CLI` to that artifact's absolute path; this avoids
-assuming a particular developer checkout. Verify its help before use:
+With an upstream-installed `rheos` executable on PATH, invoke it directly:
+
+```bash
+rheos help
+rheos create --title "…" --points 2 --priority P1 --body-file /tmp/card.md --config openhax.kanban.edn
+```
+
+If using an upstream-built artifact instead, set `RHEOS_CLI` to that artifact's
+absolute path; this avoids assuming a particular developer checkout. Verify its
+help before use:
 
 ```bash
 node "$RHEOS_CLI" help
