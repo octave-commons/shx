@@ -62,4 +62,5 @@ bb mutate   # law/domain/shape survivors reviewed
 Body revised while incoming, during planning review on octave-commons/shx#2: 3ca71e4 widened the Definition of done to all four adapters (fixture render + apply + zero-diff check per target, out-of-scope preserved), not only pm2. The task-created event holds the original body; the Markdown body is the current contract.
 
 Review round 5 (Codex) on octave-commons/shx#2: added supervisor-ir-live-state-law before adapters and supervisor-ir-cli after adapters, so the epic has a validated external boundary and a usable CLI entry point; commit pending.
+
 ---
