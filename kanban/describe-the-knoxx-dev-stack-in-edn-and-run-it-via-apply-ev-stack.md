@@ -41,4 +41,4 @@ pm2 jlist | jq -r '.[] | [.name, .pm2_env.status, .pm2_env.pm_cwd] | @tsv'
 
 ---
 Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
----
+***

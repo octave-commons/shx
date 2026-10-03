@@ -44,7 +44,7 @@ The whole epic is blocked by `shx-kanban-port-shx-to-cljc` and `shx-kanban-hexis
 
 ## Definition of done
 
-For each of pm2, docker compose, systemd user units and Kubernetes, a fixture stack renders, `apply` converges it, and `check` then reports zero diff, with resources outside the owned scope unchanged. A user can invoke each operation through `shx supervisor render|check|apply` and gets a clear validation error for malformed live state. The Knoxx dev stack on `stealth` runs from one EDN stack this way on pm2.
+For each of pm2, docker compose, systemd user units and Kubernetes, a fixture stack renders, `apply` converges it, and `check` then reports zero diff, with resources outside the owned scope unchanged. A user can invoke each operation through `shx supervisor render|check|apply`. `check` and `apply` report a clear validation error for malformed live state. `render` validates desired data without reading live state. The Knoxx dev stack on `stealth` runs from one EDN stack this way on pm2.
 
 ## Verification
 

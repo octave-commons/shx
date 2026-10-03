@@ -16,7 +16,7 @@ created_at: "2026-10-02T02:20:23.651Z"
 
 ## Outcome
 
-The shx CLI accepts `supervisor render|check|apply <target> <stack.edn>` for pm2, docker compose, systemd user units and Kubernetes. It validates the desired stack and live-state payload, prints a reviewable change plan, and invokes the corresponding adapter. `apply` requires an explicit target and stack path and reports what it changed.
+The shx CLI accepts `supervisor render|check|apply <target> <stack.edn>` for pm2, docker compose, systemd user units and Kubernetes. It validates the desired stack and, for `check` and `apply`, the live-state payload, prints a reviewable change plan, and invokes the corresponding adapter. `apply` requires an explicit target and stack path and reports what it changed.
 
 ## Context
 
