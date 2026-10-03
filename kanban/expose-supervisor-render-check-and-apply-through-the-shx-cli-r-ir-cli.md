@@ -26,7 +26,7 @@ Child of `shx-kanban-supervisor-ir`. The existing CLI (`src/shx/cli.clj`) only e
 
 - [ ] GIVEN a shared EDN fixture WHEN `supervisor render <target> <file>` runs for each target THEN it prints the target's golden output and its unsupported-feature report.
 - [ ] GIVEN live state equal to the fixture WHEN `supervisor check <target> <file>` runs THEN it reports zero diff for each target. A changed fixture names the changed unit.
-- [ ] GIVEN malformed desired or live data WHEN any command runs THEN it exits nonzero with the target and validation path, and `apply` invokes no mutation.
+- [ ] GIVEN malformed desired data WHEN any command runs THEN it exits nonzero with the target and validation path. GIVEN malformed live data WHEN `check` or `apply` runs THEN it fails with the target/path, and `apply` invokes no mutation. `render` reads only desired data and does not require or query live state.
 - [ ] GIVEN an in-scope change and an out-of-scope resource WHEN `supervisor apply <target> <file>` runs THEN the printed plan names only the in-scope change and the out-of-scope resource remains untouched.
 - [ ] VERIFY: CLI tests call `-main` with stubbed I/O for all four targets, including the malformed case; help text documents the commands and the owned-scope boundary.
 

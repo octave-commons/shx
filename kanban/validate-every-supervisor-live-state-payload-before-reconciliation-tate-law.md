@@ -25,6 +25,7 @@ Child of `shx-kanban-supervisor-ir`. `supervisor-ir-law` validates desired EDN. 
 ## Acceptance criteria
 
 - [ ] GIVEN a captured valid response for each target WHEN normalized THEN a target-specific contract accepts it and produces a common set of live identities and states.
+- [ ] GIVEN a valid Kubernetes response with `shx.dev/managed-by=<scope>` and `app.kubernetes.io/managed-by=shx` WHEN normalized THEN the record retains both labels and namespace unchanged. Missing or mismatched ownership remains missing/mismatched, never synthesized. Producer/consumer fixtures prove apply receives that provenance and rejects unauthorized mutations; recheck ownership at mutation time so a concurrent ownership change cannot authorize deletion from a stale read.
 - [ ] GIVEN truncated JSON, malformed JSON, a missing identity or an unsupported version/shape for any target WHEN normalized THEN validation fails with the target and path; neither `check` nor `apply` acts on a partial set.
 - [ ] GIVEN a valid empty response WHEN normalized THEN it is distinguishable from parse failure; only the valid empty response may lead to in-scope removal.
 - [ ] VERIFY: fixture tests cover each target's valid, empty, malformed and version-shifted output. The adapters call these validators before planning actions.

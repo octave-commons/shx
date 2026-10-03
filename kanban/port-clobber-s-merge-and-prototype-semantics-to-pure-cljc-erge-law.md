@@ -30,6 +30,7 @@ Source: `open-hax/foresight` `clobber/src/pm2_clj/merge.cljs` and `clobber/src/p
 - [ ] GIVEN unit `api` that `extends` a base unit with `:restart :always` and overrides `:replicas` THEN the result has both, and the override wins (golden `extends.edn`).
 - [ ] GIVEN two mixins that set the same key WHEN applied in order THEN the later mixin's value wins (golden `mixins.edn`).
 - [ ] GIVEN tiers `[:base :dev]` THEN `:dev` values deep-merge over `:base`, and `::remove` in `:dev` deletes the key (golden `tiers.edn`).
+- [ ] GIVEN a combined assembly in the explicit order base (`:replicas 1`), `extends` patch (2), ordered mixin (3), selected-tier profile fragment (4), then a later fragment for that same selected profile (5), WHEN materialized THEN the result has `:replicas 5`, retains noncolliding keys from each step and one unit per name (golden `combined-precedence.edn`). Pin this to the recovered `pm2_clj.dsl/realize-proto`, `with`, `tiers`/profile-fragment composition and `pm2_clj.runtime/apply-profile` at Foresight `fcf53352345ddb64a0a5dd49eab6390ce7f19e81`, correcting only the separately documented merge-by-name/removal bugs. Composition is explicit left-to-right; do not invent a global precedence detached from assembly order.
 - [ ] GIVEN `scope "svc"` on units `api` and `worker`, where `api` has `:needs ["worker"]`, WHEN applied THEN names become `svc-api` and `svc-worker`, `api`'s dependency becomes `:needs ["svc-worker"]`, and the resulting stack passes supervisor-law validation. All unit-name references are rewritten together.
 
 ## Verification
