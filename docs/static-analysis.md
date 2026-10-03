@@ -3,7 +3,7 @@
 ```bash
 bin/analyze            # the gate: seven checks, exits non-zero on any BLOCKING finding
 bin/analyze --fix      # apply what is safely auto-fixable (cljfmt), then sweep
-bin/analyze --strict   # CI mode: a check that could not RUN is a failure
+bin/analyze --strict   # compatible CI entry; unavailable checks fail in every mode
 bb check               # same thing (delegates to bin/analyze)
 ```
 
@@ -152,3 +152,18 @@ report** (god namespaces, mega-functions, parameter bloat, fan-out —
 and its namespace law is currently enforced by review. Both are worth porting
 when the tree is large enough for either to fire; neither is worth a gate that
 can only ever pass.
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+Unavailable analyzers cannot count as a pass in any mode. For jscpd, a missing
+npx, nonzero exit, empty stdout, or missing completed-scan summary is blocking.
+The zero-duplication threshold remains unchanged. `--strict` stays accepted for
+existing CI/Rheos callers; it no longer controls whether jscpd failures block.
+
+Run `bb gate:regression` for the isolated missing/empty/partial/malformed-output
+fault cases, then `bin/analyze --strict` for the real seven-tool gate. The
+regressions use a closed PATH and stub tools; they are not a substitute for the
+real analyzer results.

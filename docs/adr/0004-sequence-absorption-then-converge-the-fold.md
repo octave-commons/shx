@@ -63,11 +63,10 @@ either outright loses one (synthesis `:242-245`).
 
 ## Consequences
 
-- The shx board's hexis DoD is met in spirit at Phase 2 by a fold library
-  with N emitters, not by a single product package; the epic's wording
-  ("one package … emits both") is satisfied by one fold *consumed* by both
-  emitters — the card's own core identity ("Same fold, different emitter",
-  `hexis-unification-epic.md:31`) already says this.
+- A fold library consumed by multiple products is a **proposed reinterpretation**,
+  not satisfaction of the existing one-package Hexis DoD. Phase 2 requires user
+  ratification and corresponding lawful board clarifications before either
+  board can claim that destination complete. The original epic remains intact.
 - The `shx.shape.bb` placeholder problem (`shx.core` does not exist) gets
   its answer in Phase 1+: the bb runtime is a Keryx actor applying
   Psephismata to shell state (synthesis `:185-188`).
@@ -99,3 +98,13 @@ either outright loses one (synthesis `:242-245`).
   `/home/err/spaces/eta-mu/kanban/epics/absorb-muse-keryx-into-the-eta-mu-monorepo-sorption.md`.
 - Law 7: `/home/err/spaces/eta-mu/packages/clio/README.md:23-24`.
 - Executes ADR-0001, ADR-0002, ADR-0003 in phase order.
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+This sequencing is proposed. A multi-product shared fold remains a different
+acceptance contract from the existing one-package epic. User ratification, lawful
+board clarifications, and RP-003 equivalence evidence are required before Phase 2
+or any completion claim. Earlier wording cannot substitute for those acts.

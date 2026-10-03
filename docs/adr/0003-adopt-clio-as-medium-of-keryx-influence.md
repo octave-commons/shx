@@ -111,3 +111,23 @@ All Keryx delivery is mediated by Clio.
   `/home/err/spaces/eta-mu/kanban/epics/absorb-katamorph-into-the-eta-mu-monorepo-sorption.md:37`.
 - Existing behavior: `/home/err/spaces/muse/src/cljs/eta_mu/boundaries/mongo/ledger.cljs:164-169`.
 - Depends on ADR-0002; enables the Phase 2 fold in ADR-0004.
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+The earlier Decision and mapping are **candidate architecture**, not a complete
+storage/delivery migration contract. They are blocked on ADR-0002's versioned
+identity/schema/old-ledger replay contract and its fixtures.
+
+Do not demote or discard `:delivery/mode` merely by moving it into event data.
+`tell`, `ask`, `stream`, and `ack-required` must each have validated routing,
+correlation, retry, ordering, deduplication, acknowledgement, and effect semantics.
+RP-001 (or a separately reviewed interim contract with equivalent trace tests)
+must specify those semantics before any envelope conversion. Unknown modes or
+unrepresentable behavior must be refused, not silently translated.
+
+Stable stream identity and content-derived schema admission belong to canonical
+Clio/identity contracts. Original mailbox records remain immutable and replayable
+through version-aware adapters. This ADR creates no migration or mailbox runtime.

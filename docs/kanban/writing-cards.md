@@ -86,7 +86,7 @@ backwards through a state it failed is honest; a card edited in place is not.
 
 ## 3. Anatomy
 
-### Frontmatter — let the tool write it
+### Frontmatter — author input; engine-owned lifecycle
 
 ```yaml
 ---
@@ -104,7 +104,10 @@ created_at: 2026-08-10T…Z
 ---
 ```
 
-`rheos create` writes this in this order. Do not hand-author it:
+The block illustrates a CLI-created card, not a required serialization order.
+Incoming Markdown cards may be hand-authored with stable identity and descriptive
+fields; do not invent `write-id`, creation events, or lifecycle transitions.
+Operational state, transitions and comments belong to Rheos. For CLI-created cards:
 
 - `uuid` defaults to the title slug, because you address the card by uuid on
   every later call. `merge-type-collision-untested` is citable in a commit
@@ -115,9 +118,9 @@ created_at: 2026-08-10T…Z
   type-collision fallback" produced
   `assert-merge-frag-s-type-collision-fallback-untested.md`. Choose the *title* so
   its slug is the name you want to cite, and let the uuid follow.
-- `category` is derived (it came out as `kanban` here, from the task-root name),
-  and `labels` are not settable at create time — set them straight after with
-  `rheos frontmatter <uuid> --set 'labels=shx, tests'`.
+- The historical category was derived from the task root. Current CLI help
+  supports `create --labels shx,tests`; verify upstream help for your version.
+  Use `rheos frontmatter <uuid> --set 'labels=shx, tests'` for later changes.
 - `status` is owned by `move`. `rheos frontmatter` refuses to write it.
 - `uuid`, `created_at`, `write-id`, `source-path` are never writable.
 - Mutable set: `title`, `priority`, `labels`, `points`, `category`,
@@ -314,17 +317,22 @@ Before `breakdown -> ready`, all of:
 
 ## 11. Commands
 
-Verified working from this repo on 2026-08-10. `rheos` is not on `PATH` here, so
-use the built CLI directly (or alias it):
+These lifecycle observations were made on 2026-08-10; they are not proof of a
+current build-gate transition. Use the upstream-installed `rheos` on PATH, or
+set `RHEOS_CLI` to the absolute path of an upstream-built artifact and invoke
+`node "$RHEOS_CLI" <verb> ... --config openhax.kanban.edn` directly. Verify help
+and the configured engine; an unavailable/unsupported gate is an upstream gap,
+not permission to duplicate Rheos semantics locally. The examples below assume
+the executable is on PATH:
 
 ```bash
-alias rheos='node ~/spaces/eta-mu/packages/rheos/dist/cli.cjs'
+rheos help
 
 rheos projects                                    # board config as this repo sees it
 rheos read-board --status incoming,breakdown       # scope your reads
 rheos search-tasks --query merge
 
-# create — body from a template, never a hand-written file
+# create — a hand-authored Markdown body or a template is supported
 sed -e 's/<TITLE>/Assert merge-frag type-collision fallback/' \
     docs/kanban/templates/task.md > /tmp/card.md
 $EDITOR /tmp/card.md

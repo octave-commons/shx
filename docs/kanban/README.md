@@ -12,10 +12,23 @@ Templates live **here and not under `kanban/`** on purpose: rheos discovers card
 by walking every `*.md` under the task root, including dot-directories, so a
 template stored there would appear on the board as a card.
 
-Create cards with the CLI, never by hand — the FSM, the ledger, and the write-id
-all depend on it:
+Plain Markdown authoring of incoming cards is supported. Never fabricate engine
+write IDs/events or hand-edit lifecycle state. Use the canonical Rheos CLI for
+create, comments, descriptive frontmatter updates, and transitions; once scope
+leaves breakdown, clarify it through comments.
+
+With an upstream-installed `rheos` executable on PATH, invoke it directly:
 
 ```bash
-alias rheos='node ~/spaces/eta-mu/packages/rheos/dist/cli.cjs'
-rheos create --title "…" --points 2 --priority P1 --body-file /tmp/card.md
+rheos help
+rheos create --title "…" --points 2 --priority P1 --body-file /tmp/card.md --config openhax.kanban.edn
+```
+
+If using an upstream-built artifact instead, set `RHEOS_CLI` to that artifact's
+absolute path; this avoids assuming a particular developer checkout. Verify its
+help before use:
+
+```bash
+node "$RHEOS_CLI" help
+node "$RHEOS_CLI" create --title "…" --points 2 --priority P1 --body-file /tmp/card.md --config openhax.kanban.edn
 ```

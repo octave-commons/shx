@@ -3,7 +3,7 @@
 #
 #   bin/analyze            # full sweep; exits non-zero on any BLOCKING finding
 #   bin/analyze --fix      # apply what is safely auto-fixable (cljfmt), then sweep
-#   bin/analyze --strict   # CI mode: a check that could not RUN is a failure
+#   bin/analyze --strict   # CI compatibility; unavailable checks fail in every mode
 #
 # This file is the single definition of the gate. `bb check` shells out to it and
 # CI runs the same checks in the same order, so there is one list to keep true.
@@ -31,11 +31,10 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 2
 
-STRICT=0
 FIX=0
 for arg in "$@"; do
   case "$arg" in
-    --strict) STRICT=1 ;;
+    --strict) ;; # Retained for existing CI and Rheos callers.
     --fix)    FIX=1 ;;
     -h|--help) sed -n '2,32p' "$0"; exit 0 ;;
     *) echo "unknown arg: $arg" >&2; exit 2 ;;
@@ -46,9 +45,8 @@ FAIL=()
 sec() { printf '\n\033[1;36m━━━ %s\033[0m\n' "$1"; }
 
 # Preflight. A check that passes because its tool is absent is worse than no
-# check: it reads green while verifying nothing. Under --strict a missing tool is
-# a failure; interactively it degrades to a loud skip so a sandbox without node
-# can still run the rest.
+# check: it reads green while verifying nothing. Missing tools fail in every
+# mode. The remaining checks still run when only the jscpd runner is absent.
 missing=()
 for t in clj-kondo clojure clojure-lsp; do
   command -v "$t" >/dev/null 2>&1 || missing+=("$t")
@@ -60,9 +58,9 @@ if [ "${#missing[@]}" -ne 0 ]; then
   exit 2
 fi
 
-skip() {  # skip <tool> <why>
-  echo "  SKIPPED: $2"
-  [ "$STRICT" -eq 1 ] && FAIL+=("$1: skipped under --strict — the check did not run")
+unavailable() {  # unavailable <tool> <why>
+  echo "  UNAVAILABLE: $2"
+  FAIL+=("$1: $2 — the check did not complete")
 }
 
 ANALYSIS_CFG='{:output {:analysis {:var-definitions {:meta true} :arglists true} :format :edn}}'
@@ -140,31 +138,35 @@ rm -f "$lsp_raw"
 #      because the tree has no clones; see that file before touching the number.
 sec "jscpd  (copy-paste duplication)"
 if ! command -v npx >/dev/null 2>&1; then
-  skip jscpd "npx not on PATH (jscpd needs node)"
+  unavailable jscpd "npx not on PATH (jscpd needs node)"
 else
   jscpd_err=$(mktemp)
   # Pinned exactly, like every other tool here. jscpd 5.x exists; moving to it is
   # a deliberate bump that must re-measure the baseline, not a floating `@4`.
   jscpd_out=$(npx --yes jscpd@4.2.5 2>"$jscpd_err")
   jscpd_status=$?
-  if [ -z "$jscpd_out" ]; then
+  if [ "$jscpd_status" -ne 0 ]; then
+    [ -n "$jscpd_out" ] && printf '%s\n' "$jscpd_out"
     [ -s "$jscpd_err" ] && sed 's/^/  /' "$jscpd_err"
-    skip jscpd "jscpd produced no output"
+    FAIL+=("jscpd: exit $jscpd_status — duplication finding or runner failure")
+  elif [ -z "$jscpd_out" ]; then
+    [ -s "$jscpd_err" ] && sed 's/^/  /' "$jscpd_err"
+    unavailable jscpd "jscpd produced no output"
+  elif ! printf '%s\n' "$jscpd_out" | grep -qE 'Found [0-9]+ clones'; then
+    printf '%s\n' "$jscpd_out"
+    unavailable jscpd "jscpd produced no completed scan summary"
+  elif printf '%s\n' "$jscpd_out" | grep -qE 'Found [1-9][0-9]* clones'; then
+    printf '%s\n' "$jscpd_out"
+    FAIL+=("jscpd: clones reported despite successful exit — zero-findings contract")
   else
     echo "$jscpd_out" | grep -E '^(Clone found|\s+.*\[.*\])'
     echo "$jscpd_out" | grep -E 'Found [0-9]+ clones'
-    # Reuse the exit code from the run above. Re-invoking npx purely to read $?
-    # rescans the tree a second time and opens a window for the two runs to
-    # disagree if anything changed between them.
-    if [ "$jscpd_status" -ne 0 ]; then
-      FAIL+=("jscpd: duplication above the .jscpd.json threshold")
-    fi
   fi
   rm -f "$jscpd_err"
 fi
 
 # 6 ── typed.clojure over the checked (pure, non-EDN-boundary) namespaces.
-#      Adding a namespace here means adding it to bb.edn and CI too — see
+#      Adding a namespace here means adding it to bb.edn too — see
 #      AGENTS.md › Validation split.
 sec "typed.clojure  (pure logic typecheck)"
 clojure -M:typecheck -e \

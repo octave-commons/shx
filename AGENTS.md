@@ -147,8 +147,18 @@ Three things that bite:
   card you are closing. Several `done` cards here had their scope overwritten by
   their own write-up; the scope is now unrecoverable.
 
-rheos is not on `PATH` here:
-`alias rheos='node ~/spaces/eta-mu/packages/rheos/dist/cli.cjs'`.
+Use an upstream-installed `rheos` on PATH. For an upstream-built artifact, set
+`RHEOS_CLI` to its absolute path and invoke `node "$RHEOS_CLI" <verb> ...
+--config openhax.kanban.edn`; verify `help` before use. A developer checkout path
+is not an installation contract. The transition evidence above is historical
+(2026-08-10); do not claim a current transition was checked without running it.
+Unsupported FSM/gate behavior is an upstream Rheos gap, never a local replacement.
+
+Incoming card Markdown is first-class authoring input. Rheos owns operational
+comments, frontmatter mutations, and transitions; never fabricate lifecycle
+fields/events. The inbox holds original source captures with qualification
+addenda. They are not runnable operational examples; see
+`docs/design/shx1-qualification-constraints.md` before promoting them into code.
 
 ## Quality contract
 

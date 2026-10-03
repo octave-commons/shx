@@ -26,15 +26,18 @@ it. If it is intermittent, say how often and what you have ruled out.
 
 <!-- What happens. Paste the output, including the error, verbatim. -->
 
-```
+```text
 ```
 
 ## Blast radius
 
 <!--
-Who or what is affected, and how bad it is right now. envm-specific: does it
-wedge a login shell? That distinction is the repo's core failure-semantics rule —
-warn and degrade, never wedge (AGENTS.md › Quality contract).
+Who or what is affected, and how bad it is right now. Describe the affected
+users and downstream consumers, the failing input/output boundary, and whether
+the failure is recoverable. For shell config, assess login-shell usability;
+for IR consumers, assess validation, rendering and generated-output impact.
+Apply the relevant failure semantics in AGENTS.md rather than assuming every
+bug affects the same product.
 -->
 
 ## Diagnosis
@@ -58,6 +61,7 @@ The regression test must fail before the fix. State how you confirmed that —
 
 ```bash
 bb test
+bb check
 ```
 
 ## Scope

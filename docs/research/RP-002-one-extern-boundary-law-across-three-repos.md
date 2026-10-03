@@ -98,8 +98,12 @@ is the fourth data point: the pattern recurs wherever these repos grow.
 4. Propose enforcement tiering on the shx model: all findings blocking, only
    after a zero-findings baseline is reached and recorded, with per-site
    suppressions carrying reasons (docs/static-analysis.md:37-54, 85-115).
-5. Migration plan for muse `boundaries.*` → `extern.*`: mechanical rename,
-   docstring laws promoted into lint rules, no behavior change.
+5. Migration plan for muse `boundaries.*` → `extern.*`: inventory static and
+   dynamic `require`/`requiring-resolve`, generated namespace names, and
+   macro-expanded `ns`/`require` forms. Only after that inventory and clean
+   compile/test gates may the rename be described as behavior-preserving.
+   Unresolved dynamic references block the migration; no rename is implemented
+   by this research proposal.
 
 ## Deliverables
 

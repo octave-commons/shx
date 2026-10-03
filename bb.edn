@@ -24,6 +24,8 @@
              :task (shell "clojure -M:typecheck -e" "(require 'typed.clj.checker)(typed.clj.checker/check-ns 'shx.shape.quote)(println \"typecheck OK\")")}
   test {:doc "kaocha suite"
         :task (shell "clojure -M:test")}
+  gate:regression {:doc "isolated analyzer failure-path regressions"
+                   :task (shell "bash test/analyze_regression.sh")}
 
   ;; ── mutation testing: a separate, slower, advisory loop ────────────────────
   ;; Not part of `check`: it swaps the Clojure compiler (ClojureStorm) and its
