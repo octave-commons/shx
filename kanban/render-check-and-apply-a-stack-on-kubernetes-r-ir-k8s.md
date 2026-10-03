@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:29.115Z"
 
 ## Outcome
 
-A stack renders to Deployment and Service manifests; `check` diffs the stack against live Kubernetes state (kubectl get -o json); `apply` converges live state for resources in the stack's namespace that carry the adapter's own ownership marker, label `shx.dev/managed-by=<:stack/scope>` (and `app.kubernetes.io/managed-by=shx`), written only by this adapter. `app.kubernetes.io/part-of` is descriptive and never authorises deletion and leaves every resource outside that scope untouched.
+A stack renders to Deployment and Service manifests; `check` diffs the stack against live Kubernetes state (kubectl get -o json); `apply` converges live state for resources in the stack's namespace that carry the adapter's own ownership marker, label `shx.dev/managed-by=<target-validated :stack/scope>` (and `app.kubernetes.io/managed-by=shx`), written only by this adapter. `app.kubernetes.io/part-of` is descriptive and never authorises deletion and leaves every resource outside that scope untouched.
 
 ## Context
 
@@ -24,6 +24,7 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law`, `supervisor-i
 
 ## Acceptance criteria
 
+- [ ] GIVEN a target-neutral valid stack WHEN `render`, `check` or `apply` targets Kubernetes THEN validate `:stack/scope` as a nonempty label value of at most 63 characters, beginning/ending with an ASCII letter or digit and containing only ASCII letters, digits, `-`, `_` and `.` between them. Invalid examples `Team A`, `team/service`, `-svc`, `svc-` and a 64-character scope fail with a field path before process invocation or mutation; valid `Svc.prod_2` passes. Do not silently normalize or truncate scopes.
 - [ ] GIVEN truncated, malformed or version-shifted live output WHEN `check` or `apply` runs THEN the target live-state contract rejects it with a path and no mutation occurs; a valid empty response remains distinguishable.
 - [ ] VERIFY: `heretic.edn` `:exclude-files` lists `src/shx/infra/supervisor_k8s.clj`, and `bb mutate` reports no no-coverage sites in that file.
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the k8s golden file.
@@ -48,6 +49,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 ## Reference points
 
+- [Kubernetes label-value constraints](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) — checked 2026-10-03; both ownership labels and the namespace remain required.
 - `src/shx/shape/bash.clj` — emitter dispatch; an unhandled head throws.
 
 ## Anti-patterns

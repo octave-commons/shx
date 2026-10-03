@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:28.661Z"
 
 ## Outcome
 
-A stack renders to compose YAML; `check` diffs the stack against live docker compose state (`docker compose -p <scope> config` / `docker compose -p <scope> ps --all --format json`); `apply` converges live state for the compose project named by `:stack/scope` and leaves every resource outside that scope untouched.
+A stack renders to compose YAML; `check` diffs the stack against live docker compose state (`docker compose -p <scope> config` / `docker compose -p <scope> ps --all --format json`); `apply` converges live state for the compose project named by the target-validated `:stack/scope` and leaves every resource outside that scope untouched.
 
 ## Context
 
@@ -24,6 +24,7 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law`, `supervisor-i
 
 ## Acceptance criteria
 
+- [ ] GIVEN a target-neutral valid stack whose scope contains spaces, a slash, an initial dash or uppercase characters WHEN `render`, `check` or `apply` targets Compose THEN scope validation rejects it with a field path before any process invocation or mutation. Accept exactly `[a-z0-9][a-z0-9_-]*` as the nonempty Compose project name; test invalid examples `Team A`, `team/service`, `-svc` and valid `svc-prod_2`. Do not silently normalize two scopes to one project.
 - [ ] GIVEN truncated, malformed or version-shifted live output WHEN `check` or `apply` runs THEN the target live-state contract rejects it with a path and no mutation occurs; a valid empty response remains distinguishable.
 - [ ] VERIFY: `heretic.edn` `:exclude-files` lists `src/shx/infra/supervisor_compose.clj`, and `bb mutate` reports no no-coverage sites in that file.
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the compose golden file.
@@ -47,6 +48,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 ## Reference points
 
+- [Compose project-name constraints](https://docs.docker.com/compose/how-tos/project-name/) — checked 2026-10-03; target validation is separate from the target-neutral IR.
 - `src/shx/shape/bash.clj` — emitter dispatch; an unhandled head throws.
 
 ## Anti-patterns
