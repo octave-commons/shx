@@ -53,11 +53,12 @@ honest, and clio has already proved the shape.
 - [ ] GIVEN a `shx.law.*` namespace that requires `shx.infra.*` WHEN
       `bin/analyze` runs THEN it fails
 - [ ] GIVEN the tree as it stands WHEN `bin/analyze` runs THEN both new checks
-      report zero findings (they join the gate at zero, or they do not join it)
+      run as blocking gate sections and report zero findings; this task cannot
+      be completed while either check is absent from the gate
 - [ ] The boundary check reads FORMS, not text — a `;; io/file` in a comment or a
       docstring does not trip it
-- [ ] `bin/analyze --strict` promotes HARD structural breaches to failures;
-      unstrict runs report them without failing
+- [ ] HARD structural breaches and boundary violations fail both `bin/analyze`
+      and `bin/analyze --strict`; there is no advisory completion path
 - [ ] `docs/static-analysis.md`'s tool table and "What is not here yet" section
       are updated to match
 

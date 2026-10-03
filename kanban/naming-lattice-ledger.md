@@ -12,7 +12,7 @@ points: 2
 
 # Naming lattice as a ledger
 
-`docs/inbox/2026.08.10.00.17.16.md` and `2026.08.09.23.28.40.md` carry the
+`docs/inbox/2026.08.10.00.17.16.md` and `docs/inbox/2026.08.09.23.28.40.md` carry the
 canonical role assignments: Keryx, Axxium, Clio, Nomos, Psephisma, Praxis.
 
 Turn into `~/.ημ/resources/structure/naming.edn`, one event per name, so a

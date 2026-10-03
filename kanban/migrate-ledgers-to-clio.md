@@ -1,13 +1,14 @@
 ---
-uuid: "shx-kanban-migrate-ledgers-to-clio"
-title: "Migrate ~/.eta-mu instruction ledgers to real clio events"
-status: "todo"
-priority: P1
-labels: ["tasks","clio","ledger","5sp"]
-created_at: "2026-08-10T05:44:12.012Z"
-source: "shx/kanban/migrate-ledgers-to-clio.md"
 category: "tasks"
-points: 5
+labels: ["tasks", "clio", "ledger", "5sp"]
+write-id: "1791021466379-0.5419y1id6ac8ck2qcel"
+points: "5"
+source: "shx/kanban/migrate-ledgers-to-clio.md"
+title: "Migrate ~/.eta-mu instruction ledgers to real clio events"
+priority: "P1"
+status: "todo"
+uuid: "shx-kanban-migrate-ledgers-to-clio"
+created_at: "2026-08-10T05:44:12.012Z"
 ---
 
 # Migrate instruction ledgers to clio
@@ -34,3 +35,11 @@ The six ledgers under `~/.ημ/resources/` are the right SHAPE for clio
 
 `:id -> :event/subject`, `:kind -> :event/type`, `:ts -> :event/at`,
 `:owner -> :event/actor`, remaining keys -> `:event/data`.
+
+---
+Qualification clarification for SHX#1 finding 67b950d51579584256919d22 (2026-10-03). The original mapping is illustrative, not a complete migration or permission to write events.
+
+Before implementation, a versioned adapter contract must define every canonical Clio field through upstream APIs: event/id (stable source binding/idempotent import), event/type, content-derived event/schema from an admitted catalog, stable scoped event/stream, serialized event/seq allocation, evidenced event/causes (never invented), event/at, event/actor, event/subject and catalog-validated event/data. Preserve raw source records, hashes and source IDs as provenance; legacy :id identifies the resource subject, not automatically a unique occurrence. Missing identity/order/schema or unrepresentable sources are refused until the adapter contract defines them. Record source envelope/version and replay policy; never rewrite historical source bytes or hand-create a schema hash.
+
+Acceptance requires schema validation, exact source-to-destination fixtures for all fields, deterministic repeated import/no duplicate event, equal legacy IDs in different scopes, unknown format/type refusal, missing/gapped revisions, concurrent revision allocation, causal-reference failures and old-ledger replay. All writes must participate in canonical Clio locking/compare-and-append; board state stays Rheos-owned. No local migration parser/event kernel is authorized or implemented here.
+---

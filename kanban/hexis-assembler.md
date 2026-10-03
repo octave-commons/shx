@@ -1,13 +1,14 @@
 ---
-uuid: "shx-kanban-hexis-assembler"
-title: "Write the assembler: fold resources/**.edn into rules/ and configs/"
-status: "todo"
-priority: P0
-labels: ["tasks","hexis","assembler","5sp"]
-created_at: "2026-08-10T05:44:12.012Z"
-source: "shx/kanban/hexis-assembler.md"
 category: "tasks"
-points: 5
+labels: ["tasks", "hexis", "assembler", "5sp"]
+write-id: "1791021465720-0.x6ch9lrv8glfmfs023"
+points: "5"
+source: "shx/kanban/hexis-assembler.md"
+title: "Write the assembler: fold resources/**.edn into rules/ and configs/"
+priority: "P0"
+status: "todo"
+uuid: "shx-kanban-hexis-assembler"
+created_at: "2026-08-10T05:44:12.012Z"
 ---
 
 # Write the assembler
@@ -40,3 +41,11 @@ into eta-mu unchanged? Blocks on `port-shx-to-cljc` if the latter.
 
 `bb hexis:assemble` regenerates `~/.claude/CLAUDE.md`, `~/.claude/rules/`,
 and the opencode `instructions` array from the ledgers alone.
+
+---
+Qualification clarification for SHX#1 findings 7b9f2b2e986a0fa141de721d and 624c4ee0fda03cf883e2ef72 (2026-10-03). The original body remains historical scope. Its instruction-event fold is a separate proposed contract, not the implemented shx.domain.merge fragment-tree fold.
+
+Before implementation, publish/version the admitted event schemas and legacy adapter. Use the canonical upstream event admission/order, never physical file order. Resource identity must be schema-defined. A resource's updates require one validated ordered history; ambiguous cross-stream updates, unknown kinds, missing order/identity and conflicting duplicates are refused until the reviewed contract resolves them. For that history, ignore proposal-only events before selecting the final admitted assert/amend/retract. Apply a final retract after winner selection: it removes the resource and never resurrects an older value. A later explicitly admitted assertion may restore it. Timestamps are metadata, not sufficient ordering; equal timestamps must not silently choose a winner. :ord is the explicit precedence/output order from decompose-contract-to-ledgers, not event recency: sort surviving resources by schema-defined :ord and stable resource identity, refusing absent/ambiguous required precedence. State and test the version's exact kind/order/identity/default rules before implementation. Include input permutations, duplicate identity, equal timestamps, final retract, retract-then-assert, proposal-only input and explicit :ord output fixtures.
+
+Exact emitted CLAUDE.md is @AGENTS.md followed by a newline (architecture notes stay in AGENTS.md, not duplicated). Assert these bytes plus rules/config output in fixtures. Existing no-implementation/runtime choices remain prerequisites; no assembler or actor is built by this qualification.
+---

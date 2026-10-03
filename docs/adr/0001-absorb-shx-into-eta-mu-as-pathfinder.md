@@ -107,3 +107,26 @@ Concretely:
   `.github/workflows/main-pr-gate.yml:59-86` in eta-mu.
 - Followed by ADR-0002 (keryx extraction), ADR-0003 (clio as medium),
   ADR-0004 (sequencing to the fold).
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+This is a proposed, historical import plan, not authority to perform an
+absorption or close its cards. Import readiness is one blocking contract:
+
+1. Use committed source and a clean clone of the exact proposed import revision;
+   record both source and destination commits and retained history.
+2. Run all seven `bin/analyze --strict` checks (or a separately proved equivalent
+   destination gate), including missing-tool failure paths. `bb check` stays the
+   source gate; a partial run is not readiness.
+3. Prove a real destination consumer calls the imported library successfully.
+4. Prove the `:raw` fallback round-trip at that boundary; retain input/output
+   fixtures and behavior, not just a successful compile.
+5. Missing tests/configuration, stale references, unavailable dependencies, and
+   uncommitted required inputs are pre-import blockers. Each must be checked on
+   the fresh candidate, not deferred until after the import.
+
+None of these import proofs has been supplied by this documentation PR. See
+[qualification constraints](../design/shx1-qualification-constraints.md).

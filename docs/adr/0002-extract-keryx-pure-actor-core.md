@@ -84,7 +84,8 @@ Extract muse's pure actor/message-passing core into `packages/keryx` —
 
 - muse's `eta-mu.actor` public API becomes a thin facade over keryx plus a
   store backend; the facade lives in `packages/muse`, backend namespaces stay
-  harness-side, behavior unchanged.
+  harness-side. Unchanged behavior is a compatibility goal, conditional on the
+  versioned migration/replay contract below; it has not been demonstrated.
 - The 2026-07-29 resolution stays true: this package is the unit, not a
   second universal-harness compiler, so it does not compete with Muse's
   herald/translation role (synthesis `:90-93`).
@@ -122,3 +123,26 @@ Extract muse's pure actor/message-passing core into `packages/keryx` —
   `envelope.cljc:26-66`, `memory.cljc:8-38`, `muse.cljc:17-111`.
 - Parent epic: `/home/err/spaces/eta-mu/kanban/epics/absorb-muse-keryx-into-the-eta-mu-monorepo-sorption.md`.
 - Depends on ADR-0001; medium defined by ADR-0003; sequencing in ADR-0004.
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+No persisted-envelope retargeting or behavior-preserving extraction is admitted
+until a separately reviewed **versioned migration contract** is published and
+its compatibility fixtures pass. That contract must define:
+
+- Source/destination envelope versions, field handling, unknown-version refusal,
+  and lossless retention of archived original records (no historical rewrite).
+- A stable actor-identity-to-stream mapping, collision handling, and behavior
+  under actor/node renames; equal IDs in different identity scopes cannot alias.
+- Source event identity, causal lineage, stream/revision allocation, and the
+  content-derived schema/catalog rules delegated to canonical Clio APIs.
+- Read/replay of every admitted old format, with duplicate and reordered input
+  cases, delivery/correlation behavior, and explicitly tested public API output.
+- A deterministic, reversible migration adapter or explicit rejection of inputs
+  it cannot represent. Do not claim unchanged behavior from a field mapping.
+
+ADR-0003 carries the same blocking prerequisite. The Nomos inversion and runtime
+work remain future work; no new store, actor, or event kernel is added here.

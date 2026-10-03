@@ -3,6 +3,11 @@
 Unprocessed captures. Each line names where the note is *going*, not where it is.
 Delete a row when its content has been absorbed into a ledger, spec, or skill.
 
+Captures are historical source, not approved runbooks or runtime contracts.
+Read each qualification addendum and the [constraints](../design/shx1-qualification-constraints.md)
+before reuse. Preserve source provenance; merge authorization does not promote
+unsafe examples, incomplete definitions, or proposed migrations into authority.
+
 ## Lineage of this repo — absorb into AGENTS.md / resource ledgers
 
 | note | contains | destination |
@@ -23,7 +28,7 @@ Delete a row when its content has been absorbed into a ledger, spec, or skill.
 | note | contains | destination |
 |---|---|---|
 | `2026.08.09.23.28.40.md` | Keryx (heralds) as message passing over Axxium + Clio | Naming ledger |
-| `2026.08.10.00.17.16.md` | Keryx / Axxium / Clio / Nomos / Psephisma / Praxis role assignments | **The canonical lattice.** Should become `~/.ημ/resources/structure/naming.edn`, one event per name. |
+| `2026.08.10.00.17.16.md` | Keryx / Axxium / Clio / Nomos / Psephisma / Praxis role assignments | **Original incomplete lattice capture; derived definitions are in its addendum.** Should become `~/.ημ/resources/structure/naming.edn`, one event per name. |
 
 ## Reference — keep, low urgency
 

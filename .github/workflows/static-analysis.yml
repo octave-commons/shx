@@ -19,10 +19,9 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      # node is here for one reason: jscpd. Without it bin/analyze would SKIP the
-      # duplication check, and --strict turns that skip into a failure — so a
-      # missing node breaks the build loudly instead of quietly not checking.
-      - uses: actions/setup-node@v4
+      # node runs jscpd; an unavailable runner fails in every gate mode.
+      # Official actions/setup-node v4 tag verified 2026-10-03 via GitHub API.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24"
 
@@ -71,11 +70,13 @@ jobs:
       # typed.clojure, kaocha) in a fixed order. Listing them again as separate
       # YAML steps is how CI and the local gate drift apart.
       #
-      # --strict: a check that could not RUN counts as a failure. Interactively
-      # jscpd degrades to a loud skip when node is absent; in CI that would be a
-      # green build that checked less than it claimed.
+      # --strict remains compatible with existing callers; every mode fails
+      # when a check cannot complete. No local/CI skip can count as a pass.
       #
       # Splint's and cljfmt's versions are pinned in deps.edn; jscpd's in
       # bin/analyze. See docs/static-analysis.md for the tier contract.
+      - name: Gate failure-path regressions
+        run: bash test/analyze_regression.sh
+
       - name: bin/analyze --strict
         run: bin/analyze --strict

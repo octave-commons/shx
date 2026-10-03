@@ -185,16 +185,18 @@ system prompt is a projection of habit. Same fold, different emitter."
 Clio law 7: "A projection is a pure fold over the canonical event order and
 can be deleted and reconstructed."
 
-These are the same sentence. The hexis-assembler card already says "Same fold
-as `shx.domain.merge`" (group by `:id`, order by `:ts`, last wins). The deep
-identity the whole synthesis rests on:
+These suggest a shared-fold **hypothesis**, not a proven equivalence. The
+hexis-assembler's group-by-id/event-time fold differs from `shx.domain.merge`'s
+fragment-tree precedence and vector concatenation. RP-003 must specify the
+representation, ordering, collision, and retraction parameters and test each
+implementation before any shared fold is standardized:
 
 > **Config rendering is event-sourced projection.** envm's
 > `fold-fragment-tree`, muse's opencode settings deep-merge, and a Clio
-> projection are one operation at three altitudes. Hexis names the operation;
-> Keryx carries the influence; Clio remembers it; the emitters (bash, bb,
-> opencode plugin, MCP, GitHub Actions) are pure `shape/` morphisms off the
-> folded value.
+> projection may be parameterized instances of a common fold. This remains
+> unproved. Only folded-value-to-text/data renderers belong in pure `shape/`;
+> opencode, MCP, and GitHub Actions transport/apply adapters remain effectful
+> outer boundaries and are not registered as pure morphisms.
 
 This is why "shx merged with muse becomes an eta-mu package" reduces
 complexity rather than merely moving code: two fold implementations and two
@@ -224,9 +226,11 @@ Keryx + actor's Clio history → (Nomos) → Psephisma {:events :send :spawn :re
   discipline (`packages/clio/README.md:196-221`). The lattice's sixth name is
   the apply transition itself.
 
-This gives the system its computational closure: **the only way anything
-changes is a Keryx delivered into a Clio stream, folded by a Nomos, issuing
-Psephisma, enacted as Praxis — itself only more Keryx and more Clio.**
+The proposed target closure is: **admitted effects are represented by Keryx,
+Clio, Nomos decisions, and Praxis enactment.** This is not an already-enforced
+runtime invariant. RP-001 and RP-002 must define the adapter contract, including
+how every allowed effect becomes a validated event/envelope and how unrecorded
+side effects are rejected, before closure can be claimed.
 "Keryx the fundamental unit, Clio the medium" is not metaphor; it is the
 proposed reduction of every effect in the system to two data types.
 
@@ -255,7 +259,9 @@ not destination:
    emitter registry), consumed by `packages/shx`, `packages/muse`, and rheos
    alike — a library, not a product merger. The naming decision
    (`name-the-unified-package`, in `review`) stays open until Phase 2; nothing
-   gets renamed in Phases 0–1.
+   gets renamed in Phases 0–1. A shared library does not satisfy the existing
+   one-product-package DoD: user ratification must precede lawful changes to
+   either board's destination contract.
 
 Rationale: the absorption epics encode the lower-risk path (proven import,
 clean-clone gates, first-consumer requirements). The hexis epic encodes the
@@ -325,7 +331,8 @@ boundary lint already enforces it). One mechanical law across all three repos:
 - **Nomos hosting**: does a Nomos run inside sol/turn-processor, inside an
   OpenCode plugin, or as a bb/nbb process? Deferred to RP-001.
 - **muse drift**: `test/js/eta_mu_cli_test_stub.cjs` referenced but missing;
-  `.opencode/opencode.json` stale. Fix during import, not before.
+  `.opencode/opencode.json` stale. These historical observations must be
+  rechecked and repaired before the import candidate can pass its gate.
 - **Uncommitted state everywhere**: shx's entire 2026-08-10 layer, eta-mu's
   ~40 new cards, muse's package.json dirt. The absorptions import *history*;
   uncommitted work has none. Commit first (see Next).
@@ -345,3 +352,16 @@ Commit the uncommitted planning tranches in all three repos (shx's 2026-08-10
 layer; eta-mu's ~40 cards including both absorption epics; muse's package
 dirt), then append the keryx-extraction epic to the eta-mu board as a child of
 `absorb-muse-keryx`, referencing this document.
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+The source/repository observations in this August synthesis are historical, not
+fresh ownership or import-readiness evidence. All ADRs/RPs remain Proposed;
+this qualification grants no absorption, extraction, renaming, schema migration,
+or board-completion authority. Phase 0 uses ADR-0001's full readiness contract;
+Phase 1 uses ADR-0002/0003's versioned compatibility/delivery prerequisites;
+Phase 2 needs user ratification and RP-003 proof. See the source-preserving
+[qualification constraints](shx1-qualification-constraints.md).

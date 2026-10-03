@@ -28,8 +28,9 @@ The questions that must be answered before Keryx is extracted:
 2. **Idempotent handlers under replay.** A Nomos is a pure function
    `(history, keryx) -> {:events :send :spawn :reply}`
    (docs/inbox/2026.08.09.23.28.40.md:174-181; synthesis §7). Purity gives
-   replay-safety by construction — but only if the Psephisma's effects are
-   applied exactly once by infra. Where does that guarantee live?
+   the same decision for the same canonical history and Keryx. Replay safety
+   additionally needs defined ordering/deduplication and an idempotent effect
+   application contract. Where do those guarantees live?
 3. **Causal ordering vs stream ordering.** Clio law 4 gives stream slots;
    law 3 gives the causal DAG. The README warns explicitly that the
    `[stream,seq,id]` replay tie-break "is not a causal claim"
@@ -93,7 +94,9 @@ append-marker behavior, synthesis §5 consequence 1).
 1. Write a small-step operational semantics: states are `(streams, registry,
    nomos-table)`; transitions are `append`, `pull(actor, seq)`, `decide`
    (Nomos fold → Psephisma), and `apply` (Psephisma → infra effects). Prove
-   confluence of `decide` under replay given Nomos purity.
+   deterministic `decide` for identical canonical ordered/deduplicated input.
+   Purity alone does not prove confluence under reordered or duplicated delivery,
+   or idempotence of effects. Specify and test those guarantees separately.
 2. Define delivery tiers as predicates over traces; classify `tell!`, `ask!`,
    and `influence!` against them; pick the vocabulary.
 3. Enumerate Nomos host options (sol/turn-processor; OpenCode plugin; bb/nbb
@@ -118,3 +121,15 @@ function, Psephisma its consequential output as data, Keryx the unit, Clio
 the medium. RP-002 constrains where the effectful `apply` transition may
 live (extern/infra only). RP-003 supplies the fold algebra the `decide`
 transition's history argument is built from.
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+Replay guarantees are conditional on identical canonical ordered/deduplicated
+inputs. Specify event/delivery IDs, per-stream ordering and conflict handling,
+handler version, and effect dedupe keys separately. Include duplicate delivery,
+reordered arrival, restart after decision/before effect, and repeated application
+trace cases before claiming confluence or idempotent effects. This is a research
+prerequisite, not a runtime or a completed proof.

@@ -118,3 +118,17 @@ ledger, hexis the disposition projected from it
 obligation behind synthesis §6's identity claim. RP-001 supplies the streams
 being folded; RP-002 guarantees the emitters stay pure — a projection fold
 that performs I/O is a category error the extern lint must reject.
+
+
+---
+
+## Qualification addendum — 2026-10-03
+
+RP-003 must first publish a common input representation and explicit parameters:
+input identity, tree/sequence precedence, canonical ordering, shallow/deep map
+collision behavior, vector concatenation, and retraction. A law proven under one
+parameter set cannot silently stand for a different fold. Then run the same
+fixture corpus through each versioned implementation/adapter and compare results;
+record failures/counterexamples and which laws apply. No equivalence is claimed
+until those artifacts exist. The emitter registry remains pure value-to-text/data
+only; transports and apply operations stay outside it.

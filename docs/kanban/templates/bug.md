@@ -26,7 +26,7 @@ it. If it is intermittent, say how often and what you have ruled out.
 
 <!-- What happens. Paste the output, including the error, verbatim. -->
 
-```
+```text
 ```
 
 ## Blast radius
@@ -58,6 +58,7 @@ The regression test must fail before the fix. State how you confirmed that —
 
 ```bash
 bb test
+bb check
 ```
 
 ## Scope
