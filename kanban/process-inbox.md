@@ -1,7 +1,7 @@
 ---
 category: "tasks"
 labels: ["tasks", "docs", "2sp"]
-write-id: "1791021467056-0.4mpczzy6a6conmbfumg"
+write-id: "1791026140410-0.895g7tmxufp74x37vg"
 points: "2"
 source: "shx/kanban/process-inbox.md"
 title: "Route the 13 inbox notes per docs/inbox/INDEX.md"
@@ -25,9 +25,13 @@ Highest value first:
 - Two session-noise files can be deleted once skimmed.
 
 ---
+
 Qualification clarification for SHX#1 findings a4f813c3316901a93e9a7835 and eea4ae2d34cb2b70397300fc (2026-10-03). Existing routing scope covers the bare session header docs/inbox/2026.08.09.22.14.06.md and NFS capture docs/inbox/2026.08.09.23.26.12.md.
 
 Preserve original captured bytes/source commits and hashes: removal/redaction means omitting the opaque session ID from a derived published header or keeping the raw header only in the provenance archive, not rewriting historical receipts/events or claiming this identifier is an authentication secret. Identify and approve the owning ops-documentation destination before publishing derived NFS material there; retain source links and qualification addenda. INDEX must distinguish the source archive from the derived destination, with no claim a move has already happened. Verify provenance/reference continuity and absence of raw session IDs in the derived surface.
 
 Archive accessibility/heading cleanup is explicitly tracked by real Rheos card a6b112a4-9d6c-4f7d-9bdf-d05bdc690f88; reference that card rather than declaring those fixes complete. This comment does not close/transition cards or deploy NFS.
+
+Comment rendering was repaired using the actual Rheos CLI built from unmerged open-hax/rheos PR #2 head 66e8b67951971af541503c4a556c5645eaa727c0, with complete CodeRabbit review and 153 tests / 790 assertions passing. Blank separator lines preserve prose rendering, previous section content and the complete historical event prefix. This is a staged consumer repair; the upstream formatter still awaits review convergence. No card transition, historical rewrite, or formatter merge is claimed.
+
 ---
