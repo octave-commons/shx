@@ -1,0 +1,15 @@
+{:status :proposed
+ :kind :source-correction
+ :source {:repository "octave-commons/shx"
+          :commit "f6356e91b69d97160151d5b933a0a4f3bf566189"
+          :path "docs/notes/2026.08.10.02.32.07.edn"
+          :sha256 "07ae38b98510a7ee3d34dc61cd9ff631e757c475e71836b4d686f4f45e25b426"}
+ :replaces-keys {:packge/type :package/type
+                 :packge/description :package/description}
+ :candidate-record {:event/type :package/register
+                    :package/id :rheos/package
+                    :package/type :npm
+                    :package/description "A local first kanban system for managing work in progress. It enforces state transition rules on work, and provides a set of tools for managing phases and actors."
+                    :package/name "@eta-mu/rheos"}
+ :admission :not-admitted
+ :note "Corrected candidate data only; original capture remains immutable. No event ID, engine write, registration or operational admission is fabricated."}

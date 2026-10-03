@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/kucherenko/jscpd/master/packages/jscpd/schema.json",
+  "format": ["clojure"],
+  "pattern": "**/*.clj",
+  "path": ["src", "test"],
+  "minTokens": 60,
+  "minLines": 8,
+  "reporters": ["console", "json"],
+  "output": "target/jscpd",
+  "absolute": false,
+  "gitignore": true,
+  "threshold": 0,
+  "_comment_threshold": [
+    "RATCHET, and this one starts at the floor. Measured 2026-08-10:",
+    "14 files, 798 lines, 9257 tokens, 0 clones, 0% duplicated. jscpd fails when",
+    "duplication is ABOVE the threshold, so 0 means the first clone introduced",
+    "into src/ or test/ fails the gate.",
+    "",
+    "Do not raise it to make a red build green. shx is 800 lines; if a clone",
+    "appears at this size it is a design signal, not an inevitability. The two",
+    "emitters (shape/bash, shape/bb) are the place duplication will show up",
+    "first, since they walk the same IR — and if a clone appears there, the",
+    "honest fix is usually to lift the shared walk, not to widen the threshold.",
+    "",
+    "If a clone is genuinely load-bearing (two paths that must be independently",
+    "constructed for a test to prove anything), raise the threshold in the same",
+    "commit that documents WHICH clone and WHY, the way ../Truth/.jscpd.json",
+    "records its exemptions. A bare number bump is not a decision."
+  ],
+  "_comment_scope": [
+    "Only src/ and test/ are scanned. kanban/ is prose, docs/ is prose, and",
+    ".clj-kondo/.cache holds generated transit — duplication there is not a code",
+    "smell. minTokens 60 / minLines 8 matches ../Truth so the two repos' numbers",
+    "mean the same thing."
+  ]
+}

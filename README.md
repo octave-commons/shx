@@ -47,11 +47,34 @@ strict `Any` handling can't model heterogeneous EDN without lies).
 ## Gate
 
 ```bash
-bb check   # clj-kondo (zero warnings) + typed.clojure + kaocha
+bin/analyze        # or: bb check
 ```
 
-All three block in CI (`.github/workflows/`). Tool versions are pinned; bump
-deliberately, fix what the new version finds, commit both together.
+Seven checks, all blocking, all at zero:
+
+| | finds |
+|---|---|
+| clj-kondo | bugs, anti-patterns |
+| splint | non-idiomatic forms |
+| cljfmt | formatting drift |
+| clojure-lsp | unused public vars, project-wide |
+| jscpd | copy-paste duplication (threshold 0 — the tree has no clones) |
+| typed.clojure | type errors in the pure, checked namespaces |
+| kaocha | failing tests |
+
+CI runs `bin/analyze --strict`, where a check that could not *run* also fails.
+Tool versions are pinned; bump deliberately, fix what the new version finds,
+commit both together. See [`docs/static-analysis.md`](docs/static-analysis.md).
+
+```bash
+bin/mutate   # mutation testing over domain/law/shape (heretic, experimental)
+```
+
+Coverage asks whether a line ran. Mutation testing asks whether breaking it makes
+a test fail — the difference between a suite that executes the code and one that
+holds it. It is not part of the gate (it swaps the Clojure compiler and is
+pre-1.0); it is the loop you run when you change pure logic. See
+[`docs/mutation-testing.md`](docs/mutation-testing.md).
 
 ## License
 

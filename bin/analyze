@@ -1,11 +1,193 @@
 #!/usr/bin/env bash
-# Local gate, mirrors CI exactly. Exit 0 = green.
-set -euo pipefail
-cd "$(dirname "$0")/.."
-echo "== clj-kondo =="
-clj-kondo --lint src test --fail-level warning
-echo "== typecheck =="
+# The gate. One command, seven rule-based checks, no LLM anywhere in it.
+#
+#   bin/analyze            # full sweep; exits non-zero on any BLOCKING finding
+#   bin/analyze --fix      # apply what is safely auto-fixable (cljfmt), then sweep
+#   bin/analyze --strict   # CI compatibility; unavailable checks fail in every mode
+#
+# This file is the single definition of the gate. `bb check` shells out to it and
+# CI runs the same checks in the same order, so there is one list to keep true.
+# Mutation testing is deliberately NOT here — see bin/mutate and
+# docs/mutation-testing.md for why it is a separate, local, advisory loop.
+#
+# Tiers:
+#   BLOCKING   clj-kondo         errors AND warnings          (.clj-kondo/config.edn)
+#   BLOCKING   Splint            idiom / anti-pattern lint     (.splint.edn)
+#   BLOCKING   cljfmt            formatting
+#   BLOCKING   clojure-lsp       unused public vars (dead code)
+#   BLOCKING   jscpd             copy-paste duplication        (.jscpd.json, threshold 0)
+#   BLOCKING   typed.clojure     pure-logic typecheck
+#   BLOCKING   kaocha            the test suite
+#
+# EVERY ONE OF THESE WAS AT ZERO ON 2026-08-10. That is the only reason they are
+# all blocking. A gate promoted while findings remain is a gate that gets merged
+# past — and once one check is habitually red, agents and humans alike stop
+# reading the whole output.
+#
+# So: if one fires, it is a BLOCKER, not a backlog item. Fix it, or add a
+# documented per-site suppression carrying its reason (docs/static-analysis.md ›
+# Suppression conventions). If you genuinely cannot fix it, put a card on the
+# board — do NOT demote the tier, and do not widen a ratchet to make red green.
+set -uo pipefail
+cd "$(dirname "$0")/.." || exit 2
+
+FIX=0
+for arg in "$@"; do
+  case "$arg" in
+    --strict) ;; # Retained for existing CI and Rheos callers.
+    --fix)    FIX=1 ;;
+    -h|--help) sed -n '2,32p' "$0"; exit 0 ;;
+    *) echo "unknown arg: $arg" >&2; exit 2 ;;
+  esac
+done
+
+FAIL=()
+sec() { printf '\n\033[1;36m━━━ %s\033[0m\n' "$1"; }
+
+# Preflight. A check that passes because its tool is absent is worse than no
+# check: it reads green while verifying nothing. Missing tools fail in every
+# mode. The remaining checks still run when only the jscpd runner is absent.
+missing=()
+for t in clj-kondo clojure clojure-lsp; do
+  command -v "$t" >/dev/null 2>&1 || missing+=("$t")
+done
+if [ "${#missing[@]}" -ne 0 ]; then
+  sec "verdict"
+  printf '\033[1;31m✘ cannot run the gate — not on PATH:\033[0m\n'
+  for m in "${missing[@]}"; do echo "  - $m"; done
+  exit 2
+fi
+
+unavailable() {  # unavailable <tool> <why>
+  echo "  UNAVAILABLE: $2"
+  FAIL+=("$1: $2 — the check did not complete")
+}
+
+ANALYSIS_CFG='{:output {:analysis {:var-definitions {:meta true} :arglists true} :format :edn}}'
+
+# 1 ── clj-kondo: correctness + anti-patterns.
+sec "clj-kondo  (bugs / anti-patterns)"
+clj-kondo --lint src test
+kondo=$?   # 0 clean · 2 warnings · 3 errors
+case "$kondo" in
+  0) ;;
+  2) FAIL+=("clj-kondo: warnings present (tree was at 0)") ;;
+  3) FAIL+=("clj-kondo: errors present") ;;
+  # Any other code is clj-kondo itself failing — bad config, crash, 127. Do not
+  # fall through to success: an unrecognised exit means the lint did not run.
+  *) FAIL+=("clj-kondo: unexpected exit $kondo — the lint did not run") ;;
+esac
+
+# 2 ── Splint: non-idiomatic forms (the maintained kibit successor).
+sec "Splint  (idiom anti-patterns)"
+clojure -M:splint
+splint=$?
+[ "$splint" -ne 0 ] && FAIL+=("Splint: warnings present (tree was at 0)")
+
+# 3 ── cljfmt: formatting. --fix applies it.
+sec "cljfmt  (formatting)"
+if [ "$FIX" -eq 1 ]; then
+  # A failed fix (read-only file, broken form) must not read as success: record
+  # it as a blocking finding, and verify formatting after any applied fix so a
+  # partial application cannot slip through either.
+  clojure -M:cljfmt fix src test
+  fix_status=$?
+  if [ "$fix_status" -ne 0 ]; then
+    FAIL+=("cljfmt: fix failed (exit $fix_status) — the formatting step did not complete")
+  elif clojure -M:cljfmt check src test >/dev/null 2>&1; then
+    echo "  formatting applied; all files formatted."
+  else
+    clojure -M:cljfmt check src test 2>&1 | tail -20
+    FAIL+=("cljfmt: fix applied but files still need formatting")
+  fi
+else
+  if clojure -M:cljfmt check src test >/dev/null 2>&1; then
+    echo "  all files formatted."
+  else
+    clojure -M:cljfmt check src test 2>&1 | tail -20
+    FAIL+=("cljfmt: files need formatting — run bin/analyze --fix")
+  fi
+fi
+
+# 4 ── clojure-lsp: project-wide dead code. Catches the public var left behind by
+#      an abandoned refactor, which no per-namespace linter can see.
+sec "clojure-lsp  (dead code: unused public vars)"
+# Keep the raw output, so "clean" stays distinguishable from "never ran". Piping
+# straight into grep with stderr discarded makes a crashed clojure-lsp look
+# exactly like a clean tree.
+lsp_raw=$(mktemp)
+clojure-lsp diagnostics >"$lsp_raw" 2>/dev/null
+lsp_status=$?
+dead=$(grep -i 'unused-public-var' "$lsp_raw")
+# Findings first (clojure-lsp may exit nonzero *because* findings exist), then
+# the analyzer's own exit status — independently of output size, so a crash
+# that emitted partial output can never read as a clean tree.
+if [ -n "$dead" ]; then
+  echo "$dead"
+  FAIL+=("clojure-lsp: unused public vars present (tree was at 0)")
+elif [ "$lsp_status" -ne 0 ]; then
+  echo "  clojure-lsp exited $lsp_status — the check did not run"
+  FAIL+=("clojure-lsp: exit $lsp_status — the check did not run")
+else
+  echo "  none"
+fi
+rm -f "$lsp_raw"
+
+# 5 ── jscpd: copy-paste duplication, gated by "threshold" in .jscpd.json (jscpd
+#      enforces it itself and exits non-zero above it). The threshold is 0
+#      because the tree has no clones; see that file before touching the number.
+sec "jscpd  (copy-paste duplication)"
+if ! command -v npx >/dev/null 2>&1; then
+  unavailable jscpd "npx not on PATH (jscpd needs node)"
+else
+  jscpd_err=$(mktemp)
+  # Pinned exactly, like every other tool here. jscpd 5.x exists; moving to it is
+  # a deliberate bump that must re-measure the baseline, not a floating `@4`.
+  jscpd_out=$(npx --yes jscpd@4.2.5 2>"$jscpd_err")
+  jscpd_status=$?
+  if [ "$jscpd_status" -ne 0 ]; then
+    [ -n "$jscpd_out" ] && printf '%s\n' "$jscpd_out"
+    [ -s "$jscpd_err" ] && sed 's/^/  /' "$jscpd_err"
+    FAIL+=("jscpd: exit $jscpd_status — duplication finding or runner failure")
+  elif [ -z "$jscpd_out" ]; then
+    [ -s "$jscpd_err" ] && sed 's/^/  /' "$jscpd_err"
+    unavailable jscpd "jscpd produced no output"
+  elif ! printf '%s\n' "$jscpd_out" | grep -qE 'Found [0-9]+ clones'; then
+    printf '%s\n' "$jscpd_out"
+    unavailable jscpd "jscpd produced no completed scan summary"
+  elif printf '%s\n' "$jscpd_out" | grep -qE 'Found [1-9][0-9]* clones'; then
+    printf '%s\n' "$jscpd_out"
+    FAIL+=("jscpd: clones reported despite successful exit — zero-findings contract")
+  else
+    echo "$jscpd_out" | grep -E '^(Clone found|\s+.*\[.*\])'
+    echo "$jscpd_out" | grep -E 'Found [0-9]+ clones'
+  fi
+  rm -f "$jscpd_err"
+fi
+
+# 6 ── typed.clojure over the checked (pure, non-EDN-boundary) namespaces.
+#      Adding a namespace here means adding it to bb.edn too — see
+#      AGENTS.md › Validation split.
+sec "typed.clojure  (pure logic typecheck)"
 clojure -M:typecheck -e \
   "(require 'typed.clj.checker)(typed.clj.checker/check-ns 'shx.shape.quote)(println \"typecheck OK\")"
-echo "== tests =="
+tc=$?
+[ "$tc" -ne 0 ] && FAIL+=("typed.clojure: check failed")
+
+# 7 ── The test suite.
+sec "kaocha  (tests)"
 clojure -M:test
+tests=$?
+[ "$tests" -ne 0 ] && FAIL+=("kaocha: tests failed")
+
+# ── verdict ────────────────────────────────────────────────────────────────
+sec "verdict"
+if [ "${#FAIL[@]}" -eq 0 ]; then
+  printf '\033[1;32m✔ no blocking findings\033[0m\n'
+  echo "  mutation testing is a separate loop: bin/mutate (docs/mutation-testing.md)"
+  exit 0
+else
+  printf '\033[1;31m✘ blocking findings:\033[0m\n'
+  for f in "${FAIL[@]}"; do echo "  - $f"; done
+  exit 1
+fi

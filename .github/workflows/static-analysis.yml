@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   analyze:
     runs-on: ubuntu-latest
@@ -16,6 +19,12 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      # node runs jscpd; an unavailable runner fails in every gate mode.
+      # Official actions/setup-node v4 tag verified 2026-10-03 via GitHub API.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
       - uses: DeLaGuardo/setup-clojure@13.4
         with:
           cli: "1.12.3.1577"
@@ -23,6 +32,31 @@ jobs:
           # but must be a deliberate bump, not a surprise mid-PR.
           # Matches the version the tree was driven to zero against locally.
           clj-kondo: 2025.07.28
+          # clojure-lsp discovers the classpath with `bb print-deps` because the
+          # repo has a bb.edn; without babashka it exits 1 ("Cannot run program
+          # bb") and the dead-code check never runs. Pinned like the rest.
+          bb: 1.12.207
+          # NOTE: do NOT add `clojure-lsp:` here. This action has no such input:
+          # it warns "Unexpected input(s) 'clojure-lsp'" and ignores it, so
+          # bin/analyze --strict failed with "not on PATH: clojure-lsp" on every
+          # PR (octave-commons/shx#1, #2). Same trap, same fix as
+          # octave-commons/Truth's static-analysis.yml. Installed below instead.
+
+      # Same pin policy as clj-kondo. clojure-lsp supplies the project-wide
+      # dead-code check (unused public vars), which no per-namespace linter can
+      # see. The release zip is checked against its published sha256.
+      - name: Install clojure-lsp
+        env:
+          CLOJURE_LSP_VERSION: 2025.08.25-14.21.46
+        run: |
+          set -euo pipefail
+          base="https://github.com/clojure-lsp/clojure-lsp/releases/download/${CLOJURE_LSP_VERSION}"
+          asset="clojure-lsp-native-static-linux-amd64.zip"
+          curl -sSfLo "/tmp/${asset}" "${base}/${asset}"
+          curl -sSfLo "/tmp/${asset}.sha256" "${base}/${asset}.sha256"
+          echo "$(cut -d' ' -f1 "/tmp/${asset}.sha256")  /tmp/${asset}" | sha256sum -c -
+          sudo unzip -o -q "/tmp/${asset}" -d /usr/local/bin
+          clojure-lsp --version
 
       - uses: actions/cache@v4
         with:
@@ -31,12 +65,18 @@ jobs:
             ~/.gitlibs
           key: deps-${{ hashFiles('deps.edn') }}
 
-      # Zero-warning contract: warnings are failed contracts.
-      - name: clj-kondo
-        run: clj-kondo --lint src test --fail-level warning
+      # ONE step, because bin/analyze is the single definition of the gate: seven
+      # blocking checks (clj-kondo, splint, cljfmt, clojure-lsp dead code, jscpd,
+      # typed.clojure, kaocha) in a fixed order. Listing them again as separate
+      # YAML steps is how CI and the local gate drift apart.
+      #
+      # --strict remains compatible with existing callers; every mode fails
+      # when a check cannot complete. No local/CI skip can count as a pass.
+      #
+      # Splint's and cljfmt's versions are pinned in deps.edn; jscpd's in
+      # bin/analyze. See docs/static-analysis.md for the tier contract.
+      - name: Gate failure-path regressions
+        run: bash test/analyze_regression.sh
 
-      # typed.clojure over the checked (pure, non-EDN-boundary) namespaces.
-      - name: typecheck
-        run: |
-          clojure -M:typecheck -e \
-            "(require 'typed.clj.checker)(typed.clj.checker/check-ns 'shx.shape.quote)(println \"typecheck OK\")"
+      - name: bin/analyze --strict
+        run: bin/analyze --strict

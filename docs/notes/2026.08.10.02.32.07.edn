@@ -1,0 +1,11 @@
+{:event/type :package/register
+ :package/id :rheos/package
+ :packge/type :npm
+ :packge/description "A local first kanban system for managing work in progress. It enforces state transition rules on work, and provides a set of tools for managing phases and actors."
+ :package/name "@eta-mu/rheos"}
+{:event/type :rule/create
+ :rule/id :rule/reasonable-story-sizes
+ :rule/clauses "A story greater than 5 points is an epic that needs to be broken down into smaller stories."
+ :rule/description
+ "This rule is used to identify stories that are too large and need to be broken down into smaller, more manageable stories. A story is considered an epic if it has a point value greater than 5. When this rule is applied, any story that meets this criteria will be flagged for review and potentially broken down into smaller stories."
+ :rule/dependencies [:rheos/package]}

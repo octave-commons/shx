@@ -1,0 +1,73 @@
+;; Heretic mutation-testing config for shx. See docs/mutation-testing.md.
+;;
+;; Heretic is EXPERIMENTAL / pre-1.0 (upstream README: "a demo for the curious",
+;; "not ready for production use"). It maps tests -> code via ClojureStorm, then
+;; mutates source and re-runs only the covering tests. Run it with `bin/mutate`
+;; or `bb mutate` (both wrap `clojure -M:heretic -m heretic.core ...`).
+;;
+;; Scope: the pure layers only — domain/law/shape. infra/ is file and process
+;; I/O and cli/ is the process boundary; mutating them is slow and low-signal,
+;; so they are neither instrumented (see the :heretic alias in deps.edn) nor
+;; mutated here. A surviving mutant in a pure layer is a real test gap; a
+;; surviving mutant in an I/O shim is usually just an untestable branch.
+
+{:source-paths ["src"]
+ :test-paths   ["test"]
+
+ ;; :source-paths stays ["src"] so it matches the classpath root that the
+ ;; coverage index records form paths against. Narrowing it to the pure
+ ;; subdirectories instead would break that resolution, so scope is expressed
+ ;; here: the uninstrumented namespaces are excluded from MUTATION, not just
+ ;; from instrumentation.
+ ;;
+ ;; Why this matters: heretic scans every .clj under :source-paths for mutation
+ ;; sites, but can only observe kills in instrumented namespaces. Left in, these
+ ;; three files contributed 21 permanent "no coverage" sites — 41% of the report
+ ;; — that no test could ever move, because instrumentation, not test quality,
+ ;; is what makes them unobservable. A report that is 41% guaranteed-red is a
+ ;; report agents learn to skim.
+ ;;
+ ;; Matching is by path SUFFIX. ADD ANY NEW infra/ OR PROCESS-BOUNDARY FILE
+ ;; HERE, or it silently rejoins the no-coverage list forever. That cli and
+ ;; infra have no tests at all is a real gap — it is tracked on the board as
+ ;; `shx-bb-cli-untested`, which is the honest place for it.
+ :exclude-files ["src/shx/cli.clj"
+                 "src/shx/infra/config.clj"
+                 "src/shx/infra/fs.clj"]
+
+ ;; All five test namespaces stay in. shx.infra.config-test looks like it only
+ ;; covers uninstrumented infra, but read-fragment-tree calls
+ ;; shx.law.config/valid-config? on every fragment — so it is the only coverage
+ ;; shx.law.config has. Excluding it would report law/config as no-coverage.
+ :test-namespaces :all
+ :exclude-test-namespaces #{}
+
+ ;; Must match instrumentOnlyPrefixes in the :heretic alias. Never instrument
+ ;; heretic/clojure.* themselves — ClojureStorm would recurse infinitely.
+ :instrument-prefixes ["shx.domain" "shx.law" "shx.shape"]
+ :instrument-skip-prefixes []
+
+ ;; Coverage index + reports.
+ :heretic-dir ".heretic"
+
+ ;; Operators: :fast (16) · :minimal (31) · :standard (36, default) ·
+ ;; :comprehensive (81). Standard until the survivor list is triaged to zero;
+ ;; raise it then, because a preset raised over an untriaged list just buries
+ ;; the old survivors in new ones.
+ :preset :standard
+ :skip-forms #{comment}
+
+ ;; Per-mutant test timeout. shx has no slow paths — the whole suite is
+ ;; sub-second — so the 5s default would be generous. 10s is headroom for a
+ ;; mutant that turns a fold into a non-terminating one.
+ :timeout-ms 10000
+
+ ;; mutate/watch run in a disposable copy of the tree; the working tree is only
+ ;; ever READ. The child JVM reuses this alias for the ClojureStorm classpath.
+ ;; Keeping the sandbox lets rsync make the next run incremental.
+ :sandbox-aliases ["heretic"]
+ :sandbox-dir ".heretic-sandbox"
+ :keep-sandbox true
+
+ :report-format :terminal
+ :output-path "target/heretic-report"}
