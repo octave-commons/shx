@@ -91,14 +91,31 @@ command or fenced algorithm is not an approved runbook or production adapter.
   [candidate successor](../notes/2026-10-03-package-registration-successor.edn).
   It is Proposed and not admitted; it fabricates no engine event/registration.
 
-## Deferred archive work
+## Derived archive reader correction
 
 Real Rheos card `a6b112a4-9d6c-4f7d-9bdf-d05bdc690f88` names exact IDs/sites for
-four P2 archive accessibility/heading findings; only derived documents may be
-normalized. Existing `shx-kanban-process-inbox` plus a canonical comment covers
-derived session-header privacy and an approved NFS ops-documentation destination.
-No completed cleanup/move is claimed. Historical completion report 35 is already
-recorded by engine-authored comment before done; its card/events are untouched.
+four archive accessibility/heading findings. Their reader corrections are now
+in [event sourcing](../reference/event-sourcing-reader.md),
+[the four-topic reader](../reference/shell-actor-portability-methodology.md)
+and [the NFS operations qualification](../ops/nfs-capture-qualification.md).
+Decorative logos are omitted and the event-sourcing hierarchy is normalized;
+the captured source and existing addenda are byte-identical to the prior head.
+
+Existing `shx-kanban-process-inbox` covers the
+[redacted published header](../reference/session-header-redacted.md) and NFS
+routing. The raw identifier remains in the source archive/Git history under
+the preservation constraint; this is reader redaction, not history deletion.
+INDEX explicitly retains the NFS source only as review provenance and directs
+readers to `docs/ops/`; an approved owning deployment/destination remains a
+prerequisite for any operational successor. No source relocation is claimed.
+
+The generic bug template now covers both shell-config users and IR consumers.
+Source-bound naming guidance distinguishes current envm from the unratified
+Alethexx assistant proposal in a separate capture. Neither change rewrites
+captured statements or ratifies a new product/runtime. The parent owns external
+settlement and any subsequent Rheos comment. No engine comments, statuses,
+cards or events are changed here. Historical completion report 35 remains
+recorded by its existing engine-authored comment before done.
 
 ## Original capture provenance
 
