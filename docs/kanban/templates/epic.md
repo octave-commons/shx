@@ -36,6 +36,10 @@ Mark the hard blocker explicitly; an epic with no ordering is a wish list.
 - `<uuid>` — <what it delivers> — **hard blocker for the rest**
 - `<uuid>` — <what it delivers>
 
+## Acceptance criteria
+
+- [ ] GIVEN <starting state> WHEN <completed capability is used> THEN <observable end state>
+
 ## Definition of done
 
 <!--

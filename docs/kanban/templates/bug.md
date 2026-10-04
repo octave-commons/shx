@@ -8,6 +8,14 @@ whoever picks it up will do is try to reproduce it — so do that work once, her
 Guide: docs/kanban/writing-cards.md
 -->
 
+## Outcome
+
+<!-- The reproduction produces the specified correct behaviour after the fix. -->
+
+## Context
+
+<!-- The report, affected version, and dated sources that establish this bug. -->
+
 ## Reproduction
 
 <!--

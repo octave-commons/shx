@@ -133,7 +133,8 @@ that can disagree with it.
 
 ### Body — the sections, in order
 
-Only the first three are mandatory. Empty sections are worse than absent ones.
+Outcome, Context, Acceptance criteria, and Verification are mandatory. Empty
+optional sections are worse than absent ones.
 
 ```markdown
 # <Title as an imperative: the change, not the symptom>
@@ -333,24 +334,27 @@ rheos read-board --status incoming,breakdown       # scope your reads
 rheos search-tasks --query merge
 
 # create — a hand-authored Markdown body or a template is supported
-sed -e 's/<TITLE>/Assert merge-frag type-collision fallback/' \
+sed -e 's/<TITLE — imperative: the change, not the symptom>/Assert merge-frag type-collision fallback/' \
     docs/kanban/templates/task.md > /tmp/card.md
 $EDITOR /tmp/card.md
 rheos create --title "Assert merge-frag's type-collision fallback" \
              --points 2 --priority P1 --body-file /tmp/card.md
 
-# advance — one state at a time; the FSM refuses illegal jumps
-rheos move merge-type-collision-untested --to accepted
-rheos move merge-type-collision-untested --to breakdown
-rheos frontmatter merge-type-collision-untested --set points=2 --set labels="shx, tests"
-rheos move merge-type-collision-untested --to ready
-rheos move merge-type-collision-untested --to todo
-rheos move merge-type-collision-untested --to in_progress
-rheos move merge-type-collision-untested --to review     # runs bin/analyze --strict
+# Copy the UUID returned by create; do not substitute an existing card's ID.
+CARD_UUID='<UUID returned by rheos create>'
 
-rheos comment merge-type-collision-untested --text "…"
-rheos read-task merge-type-collision-untested
-rheos events merge-type-collision-untested               # this card's history
+# advance — one state at a time; the FSM refuses illegal jumps
+rheos move "$CARD_UUID" --to accepted
+rheos move "$CARD_UUID" --to breakdown
+rheos frontmatter "$CARD_UUID" --set points=2 --set labels="shx, tests"
+rheos move "$CARD_UUID" --to ready
+rheos move "$CARD_UUID" --to todo
+rheos move "$CARD_UUID" --to in_progress
+rheos move "$CARD_UUID" --to review     # runs bin/analyze --strict
+
+rheos comment "$CARD_UUID" --text "…"
+rheos read-task "$CARD_UUID"
+rheos events "$CARD_UUID"               # this card's history
 rheos drift                                             # cards edited outside rheos
 ```
 

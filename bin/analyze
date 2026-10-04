@@ -58,6 +58,24 @@ if [ "${#missing[@]}" -ne 0 ]; then
   exit 2
 fi
 
+# Match the executable pins in .github/workflows/static-analysis.yml before
+# analysis. clojure-lsp also prints its bundled kondo on the second line;
+# only the executable's own first-line version establishes its identity.
+pinned_version() {
+  local tool="$1" expected="$2" actual
+  if ! actual=$("$tool" --version 2>&1); then
+    printf '%s: version probe failed; expected %s\n' "$tool" "$expected" >&2
+    return 1
+  fi
+  actual=${actual%%$'\n'*}
+  if [ "$actual" != "$expected" ]; then
+    printf '%s: expected %s; got %s\n' "$tool" "$expected" "${actual:-<empty>}" >&2
+    return 1
+  fi
+}
+pinned_version clj-kondo 'clj-kondo v2025.07.28' || exit 2
+pinned_version clojure-lsp 'clojure-lsp 2025.08.25-14.21.46' || exit 2
+
 unavailable() {  # unavailable <tool> <why>
   echo "  UNAVAILABLE: $2"
   FAIL+=("$1: $2 — the check did not complete")

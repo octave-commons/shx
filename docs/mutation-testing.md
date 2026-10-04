@@ -4,12 +4,15 @@
 bin/mutate                 # collect coverage if stale, then mutate + report
 bin/mutate survivors       # surviving mutants from the last run, triaged
 bin/mutate no-coverage     # forms no indexed test reaches
-bin/mutate status          # which test namespaces need recollection
+bin/mutate status          # sandbox test namespaces needing recollection
 bin/mutate watch           # continuous mutation testing on file change
-bin/mutate clean           # drop the cached coverage index
+bin/mutate clean           # drop the sandbox coverage index
 bin/mutate mutate --files src/shx/domain/merge.clj    # scope to one file
 
-bb mutate · bb mutate:survivors · bb mutate:gaps        # same, via babashka
+# Same commands via Babashka:
+bb mutate
+bb mutate:survivors
+bb mutate:gaps
 ```
 
 Coverage answers "was this line run?". Mutation testing answers the question that
@@ -27,6 +30,15 @@ surviving mutant says the test does not constrain the code, whoever wrote either
 
 [Heretic](https://github.com/parenstech/heretic), pinned to `main@45ed7c7`.
 Configuration in `heretic.edn`; wrapper in `bin/mutate`.
+
+`status` and `clean` use the retained sandbox selected by `:sandbox-dir` in
+`heretic.edn`, including its sources and configuration. They refuse to fall back
+to the project cache when no sandbox exists. `status` describes that retained
+snapshot; working-tree edits are synced by the next `mutate` or `watch` run.
+`clean` removes the sandbox's coverage cache; copied project results remain
+available to `survivors` and
+`no-coverage`. The other commands retain Heretic's existing routing: `collect`
+uses the project cache, while `mutate` and `watch` use the sandbox.
 
 Heretic's trick is **test-to-code mapping**: it instruments with ClojureStorm to
 learn which tests exercise which expressions, so each mutation re-runs only the
@@ -106,11 +118,11 @@ vector in another. Under `or`, `(merge-frag {:vars {:A "1"}} {:vars ["x"]})`
 reaches `(merge {:A "1"} ["x"])` and throws `Vector arg to map conj must be a
 pair` instead of falling through to `:else y`.
 
-Not hypothetical for envm: fragments are hand-edited EDN merged by `:merge`
-includes and then by hostname, so a key that changes shape between two fragments
-is ordinary editing breakage — and the failure mode was an exception raised while
-rendering a login shell, which `AGENTS.md` › Quality contract says must never
-happen.
+These assertions test `merge-frag`'s direct "anything else: later wins" contract.
+They do not describe a supported login-shell render failure: schema validation
+rejects a map/vector collision on rendered keys in top-level configuration,
+including host overrides, and `read-fragment-tree` discards invalid fragments
+before merging.
 
 Closed by `merge-type-collision-untested`: three assertions in
 `merge_test.clj:12-23` pin the documented "anything else: later wins" rule,

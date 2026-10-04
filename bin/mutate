@@ -12,9 +12,9 @@
 #   bin/mutate mutate          # mutate (assumes coverage is collected)
 #   bin/mutate survivors       # surviving mutants from the last run, triaged
 #   bin/mutate no-coverage     # forms no indexed test reaches
-#   bin/mutate status          # which test namespaces need recollection
+#   bin/mutate status          # sandbox test namespaces needing recollection
 #   bin/mutate watch           # continuous mutation testing on file change
-#   bin/mutate clean           # drop the cached coverage index
+#   bin/mutate clean           # drop the sandbox coverage index
 #   bin/mutate mutate --files src/shx/domain/merge.clj    # scope to one file
 #
 # Config: heretic.edn. ClojureStorm (a patched Clojure compiler) is swapped in
@@ -33,5 +33,11 @@ command -v rsync >/dev/null 2>&1 || \
 
 # Default to the full pipeline (collect if stale, then mutate) with no subcommand.
 CMD="${1:-mutate}"; [ $# -gt 0 ] && shift
+
+case "$CMD" in
+  status|clean)
+    exec clojure -M:heretic bin/mutate-cache.clj "$CMD" "$@"
+    ;;
+esac
 
 exec clojure -M:heretic -m heretic.core "$CMD" "$@"

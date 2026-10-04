@@ -10,6 +10,14 @@ will be re-run by the next reader.
 Guide: docs/kanban/writing-cards.md
 -->
 
+## Outcome
+
+<!-- The question has a written answer, or a recorded partial answer when the time box expires. -->
+
+## Context
+
+<!-- The discovery and dated sources behind the question; label what remains unknown. -->
+
 ## Question
 
 <!-- One sentence. Answerable. If it has three parts, it is three spikes. -->
