@@ -14,5 +14,5 @@ below this line must be true only for the Claude Code harness.
 - Architecture notes live in `@AGENTS.md` above. Do not restate them here, and
   do not let `/init` append a second copy — if it does, replace the copy with
   the import.
-- `bb check` is the gate. Run it before reporting a change complete; it is the
-  same three steps CI runs.
+- Run `bb check` before reporting a change complete. It delegates to
+  `bin/analyze`; CI runs the same seven checks with `bin/analyze --strict`.
