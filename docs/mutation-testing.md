@@ -4,9 +4,9 @@
 bin/mutate                 # collect coverage if stale, then mutate + report
 bin/mutate survivors       # surviving mutants from the last run, triaged
 bin/mutate no-coverage     # forms no indexed test reaches
-bin/mutate status          # which test namespaces need recollection
+bin/mutate status          # sandbox test namespaces needing recollection
 bin/mutate watch           # continuous mutation testing on file change
-bin/mutate clean           # drop the cached coverage index
+bin/mutate clean           # drop the sandbox coverage index
 bin/mutate mutate --files src/shx/domain/merge.clj    # scope to one file
 
 bb mutate · bb mutate:survivors · bb mutate:gaps        # same, via babashka
@@ -27,6 +27,15 @@ surviving mutant says the test does not constrain the code, whoever wrote either
 
 [Heretic](https://github.com/parenstech/heretic), pinned to `main@45ed7c7`.
 Configuration in `heretic.edn`; wrapper in `bin/mutate`.
+
+`status` and `clean` use the retained sandbox selected by `:sandbox-dir` in
+`heretic.edn`, including its sources and configuration. They refuse to fall back
+to the project cache when no sandbox exists. `status` describes that retained
+snapshot; working-tree edits are synced by the next `mutate` or `watch` run.
+`clean` removes the sandbox's coverage cache; copied project results remain
+available to `survivors` and
+`no-coverage`. The other commands retain Heretic's existing routing: `collect`
+uses the project cache, while `mutate` and `watch` use the sandbox.
 
 Heretic's trick is **test-to-code mapping**: it instruments with ClojureStorm to
 learn which tests exercise which expressions, so each mutation re-runs only the

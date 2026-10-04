@@ -30,7 +30,7 @@ jobs:
     # Parent-authorized caller enablement with the selected merged Eta/Muse pair.
     # Ready for hosted new-head qualification; local checks supply no native review.
     if: ${{ github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository }}
-    uses: open-hax/eta-mu/.github/workflows/opencode-code-review.yml@694a2602709d130b2a60045a25537f1b4476ec1f
+    uses: open-hax/eta-mu/.github/workflows/opencode-code-review.yml@45ec644c2d15ed511e9bc1e797d1b4073b63dbfc
     with:
       pr_head_sha: ${{ github.event.pull_request.head.sha }}
       model: opencode/mimo-v2.6-flash-free
