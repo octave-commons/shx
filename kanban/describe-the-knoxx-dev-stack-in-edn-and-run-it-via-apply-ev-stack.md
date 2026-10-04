@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:29.339Z"
 
 ## Outcome
 
-`knoxx-shadow`, `knoxx-backend`, `knoxx-frontend` and `knoxx-ingestion` on host `stealth` are described in one EDN stack pointing at the Foresight `knoxx` checkout, started by `apply`, and `check` reports zero diff; `~/devel/services/openplanner/ecosystem.host.config.cjs` is no longer used for them.
+The four logical units `knoxx-shadow`, `knoxx-backend`, `knoxx-frontend` and `knoxx-ingestion` on host `stealth` are described in one EDN stack pointing at the Foresight `knoxx` checkout. `apply` starts their encoded physical pm2 names under the declared stack ownership prefix and `check` reports zero diff for that owned inventory. Legacy raw process names remain outside this ownership authority and are reported for separate user handling before retiring their old configuration.
 
 ## Context
 
@@ -25,9 +25,10 @@ Observed 2026-10-01: the running Knoxx dev processes use an Aug-01 checkout at `
 ## Acceptance criteria
 
 - [ ] GIVEN the EDN stack WHEN rendered for pm2 THEN every app's `cwd` is under the Foresight `knoxx` checkout.
-- [ ] GIVEN `apply` on stealth THEN all four apps are online and `check` reports zero diff.
+- [ ] GIVEN `apply` on stealth THEN all four rendered physical apps in the declared owned scope are online and `check` reports zero diff.
 - [ ] VERIFY: pm2 apps outside the stack's scope (sol, muse, mnemosyne, bitch-tracker, shoedelussy) are unchanged before and after.
-- [ ] GIVEN the live inventory of every pm2 app whose name starts with `knoxx-` (recorded before `apply`, e.g. also `knoxx-stt-npu` if present) THEN each undeclared match is either added to the stack or approved for removal by the user before `apply`. After `apply`, the `knoxx-` inventory is exactly the declared set.
+- [ ] GIVEN the complete live pm2 inventory recorded before `apply` THEN classify every app by the stack's encoded physical ownership prefix from `supervisor-ir-pm2`, `shx-<lowercase hex of the exact UTF-8 :stack/scope bytes>--` (for scope `"knoxx"`, `shx-6b6e6f7878--`). Each undeclared app within that prefix is either added to the stack or approved for removal by the user before `apply`. Raw `knoxx-` names, including `knoxx-stt-npu` if present, are diagnostic matches only: apps outside the encoded prefix remain untouched and are reported for separate user handling, even if a removal is requested. After `apply`, only the owned inventory must equal the declared rendered physical names.
+- [ ] GIVEN a hypothetical inventory with a declared owned app, an undeclared app under `shx-6b6e6f7878--`, raw `knoxx-stt-npu` and an app owned by another encoded scope WHEN the future adapter reconciles THEN only the declared/approved owned set can change; both outside-scope apps remain unchanged and are reported separately. This is a planned fixture requirement, not a live process probe.
 
 ## Verification
 

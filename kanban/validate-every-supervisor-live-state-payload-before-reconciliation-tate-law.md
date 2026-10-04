@@ -30,6 +30,17 @@ Child of `shx-kanban-supervisor-ir`. `supervisor-ir-law` validates desired EDN. 
 - [ ] GIVEN a valid empty response WHEN normalized THEN it represents zero live resources and remains distinguishable from parse failure. Any in-scope removal is allowed only from a complete, validated live-state payload; malformed or partial payloads never authorize removal.
 - [ ] VERIFY: fixture tests cover each target's valid, empty, malformed and version-shifted output. The adapters call these validators before planning actions.
 
+## Target-specific pull units
+
+The five-point parent remains an incoming planning contract. Scope the following independent target pull units before implementation; this outline creates no lifecycle transition or completed substory. Each unit delivers its target contract, pure normalization and target fixtures in the shared `shx.law.supervisor-live` boundary, with adapter-consumer assertions in its existing adapter story. The shared normalized identity/state shape stays one contract.
+
+1. **pm2:** validate and normalize `pm2 jlist` identities and states, with valid, genuinely empty, truncated/malformed, missing-identity and version-shifted fixtures under `test/resources/supervisor/live/pm2/`. The `supervisor-ir-pm2` consumer must reject invalid inventory before planning and preserve the encoded physical ownership identity. Completion is the target's rejecting/accepting fixture assertions plus its adapter-consumer tests.
+2. **Docker Compose:** validate and normalize the selected project's `config`/`ps` payloads with the same valid/empty/invalid/version cases under `test/resources/supervisor/live/compose/`. The `supervisor-ir-compose` consumer must retain the explicit rendered-file/project context and reject partial or wrong-context evidence before planning. Completion is target fixture assertions plus that consumer binding.
+3. **systemd user units:** validate and normalize user-unit identities and states with the same cases under `test/resources/supervisor/live/systemd/`. The `supervisor-ir-systemd` consumer must preserve the encoded physical ownership identity and distinguish failed reads from a genuinely empty unit set. Completion is target fixture assertions plus its adapter-consumer tests.
+4. **Kubernetes:** validate and normalize complete separate Deployment/Service lists with the same cases under `test/resources/supervisor/live/k8s/`, including omitted/failed kinds and incomplete pagination. Preserve both ownership labels and namespace verbatim for the `supervisor-ir-k8s` consumer's immediate per-mutation recheck fixtures. Completion is target fixture assertions plus producer/consumer provenance and fail-closed assertions.
+
+Each proposed pull unit scopes its change to `src/shx/law/supervisor_live.cljc`, its own cases in `test/shx/law/supervisor_live_test.clj`, its target fixture directory and the corresponding adapter story's consumer tests; the other three targets are outside that pull. Each is verified with its focused tests, `bb check` and executable-normalization mutation evidence when implemented. These fixtures and target-specific completion conditions are planned work; this Markdown repair has not implemented or executed them. Existing parent points, status and dependencies remain unchanged.
+
 ## Verification
 
 ```bash
