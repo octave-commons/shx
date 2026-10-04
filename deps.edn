@@ -7,4 +7,43 @@
          :extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
          :main-opts ["-m" "kaocha.runner"]}
   :typecheck {:extra-deps {org.typedclojure/typed.clj.checker {:mvn/version "1.4.0"}}}
-  :run {:main-opts ["-m" "shx.cli"]}}}
+  :run {:main-opts ["-m" "shx.cli"]}
+
+  ;; --- Static analysis (bin/analyze, bb analyze; docs/static-analysis.md) ----
+  ;; Every tool version here is pinned for the same reason clj-kondo is pinned
+  ;; in CI: a newer version finds NEW things, which is good but must be a
+  ;; deliberate bump with its fixes in the same commit, not a surprise mid-PR.
+
+  ;; Splint: idiom / anti-pattern linter, the maintained kibit successor.
+  ;; Config in .splint.edn. Zero warnings as of 2026-08-10, hence BLOCKING.
+  :splint {:extra-deps {io.github.noahtheduke/splint {:mvn/version "1.24.0"}}
+           :main-opts ["-m" "noahtheduke.splint" "src" "test"]}
+
+  ;; cljfmt: formatting consistency. `check` reports, `fix` rewrites.
+  :cljfmt {:extra-deps {dev.weavejester/cljfmt {:mvn/version "0.16.5"}}
+           :main-opts ["-m" "cljfmt.main"]}
+
+  ;; --- Mutation testing (Heretic; EXPERIMENTAL, pre-1.0) --------------------
+  ;; Heretic (github.com/parenstech/heretic) maps tests -> code via
+  ;; ClojureStorm, mutates source, and re-runs only the covering tests. It asks
+  ;; the sharper question: not "was this line run?" but "if I break this line,
+  ;; does a test notice?".
+  ;;
+  ;; ClojureStorm REPLACES the Clojure compiler. That is isolated to THIS alias
+  ;; — :test, :typecheck, and :run are untouched, and nothing in CI loads it.
+  ;; Config in heretic.edn; wrapper bin/mutate; docs/mutation-testing.md.
+  ;;
+  ;; Pinned to main@45ed7c7 — upstream has no released tags and has not moved
+  ;; since 2026-06-09. This is the same sha + flow-storm pair as ../Truth, which
+  ;; is the combination known to run in this workspace.
+  ;;
+  ;; Only shx.domain / shx.law / shx.shape are instrumented: mutating infra/
+  ;; means mutating file and process I/O, which is slow and low-signal.
+  :heretic {:extra-paths ["test"]
+            :classpath-overrides {org.clojure/clojure nil}
+            :extra-deps {io.github.parenstech/heretic
+                         {:git/sha "45ed7c7deffd5fee1b3050efa7396d0113b30a4f"}
+                         com.github.flow-storm/clojure {:mvn/version "1.12.5"}}
+            :jvm-opts ["-Dclojure.storm.instrumentEnable=true"
+                       "-Dclojure.storm.instrumentAutoPrefixes=false"
+                       "-Dclojure.storm.instrumentOnlyPrefixes=shx.domain,shx.law,shx.shape"]}}}

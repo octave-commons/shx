@@ -1,0 +1,46 @@
+;; Splint — idiom / anti-pattern linting for shx. Read by the `:splint` alias
+;; (deps.edn), `bb splint`, and bin/analyze.
+;;
+;; POLICY: a rule is never disabled globally. Splint's defaults are good, and a
+;; blanket `{:enabled false}` here would silently exempt every FUTURE site of
+;; that rule — the finding stops appearing and nobody decided anything. The
+;; tree was driven to zero splint warnings on 2026-08-10, which is the only
+;; reason bin/analyze can treat splint as BLOCKING.
+;;
+;; Two legitimate ways to say "not here":
+;;
+;;   1. PER-FORM, when the exception is about that one form. The marker carries
+;;      its reason at the site:
+;;
+;;        ;; Intentional: <why this rule is wrong here>
+;;        #_{:splint/disable [lint/catch-throwable]}
+;;        (defn ...)
+;;
+;;      A form-level marker covers findings nested anywhere inside that form.
+;;      ns-level `{:splint/disable [...]}` metadata is NOT honoured by splint
+;;      1.24.0 — do not reach for it.
+;;
+;;   2. PER-RULE :excludes, when the exception is a property of a whole layer.
+;;      One entry below uses this. Scoped, not global: the rule still fires
+;;      everywhere else, including on new files in other layers.
+{naming/lisp-case
+ {:excludes ["re-find:src/shx/law/[^/]+\\.clj$"]
+  ;; Malli schema vars are PascalCase across this workspace (`ExportArgs`,
+  ;; `Fragment`, and rheos' own `Task` / `ColumnSnapshot`), which is also the
+  ;; malli ecosystem's convention: a schema var names a TYPE, not a function.
+  ;;
+  ;; This is a property of the `law/` layer, not of seven individual forms.
+  ;; Namespace law says `shx.law/` holds malli contracts and nothing else, so
+  ;; the exclusion is bounded by that law: a PascalCase def in `domain/`,
+  ;; `shape/`, `infra/`, or `cli` still fails the gate. If `law/` ever grows a
+  ;; non-schema var, the exclusion is what needs revisiting — not the naming.
+  ;;
+  ;; The alternative was seven per-form markers in a 91-line ir.clj, repeating
+  ;; one reason seven times and requiring an eighth for every schema added.
+  ;;
+  ;; `re-find:`, not `glob:`. Splint matches these against the path as GIVEN on
+  ;; the command line ("src/shx/law/ir.clj"), and a Java glob `**/src/...`
+  ;; requires a segment before `src/`, so it silently matches nothing — verified
+  ;; against splint 1.24.0 on 2026-08-10, and a silent non-match here looks
+  ;; exactly like a working exclusion until the rule fires again.
+  }}

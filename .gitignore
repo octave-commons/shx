@@ -2,3 +2,13 @@ target/
 .cpcache/
 .clj-kondo/.cache/
 .lsp/.cache/
+# Written by `clojure-lsp diagnostics`, which the gate runs: it copies exported
+# clj-kondo configs out of classpath deps. Regenerated on demand, so it is noise
+# in `git status` rather than source. If we ever want lint configs PINNED, do it
+# deliberately with `clj-kondo --copy-configs --dependencies` and commit that.
+.clj-kondo/imports/
+# Heretic: coverage index and the disposable tree it mutates in.
+# .heretic-sandbox/ is a full copy of the repo; keeping it is what makes the
+# next run incremental (rsync), and it must never be committed.
+.heretic/
+.heretic-sandbox/

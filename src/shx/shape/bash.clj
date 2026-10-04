@@ -9,6 +9,7 @@
 
 (defmulti emit
   "Emit one IR node as bash text. Dispatches on node head keyword."
+  {:arglists '([node])}
   first)
 
 (defmethod emit :export [[_ {:keys [name value]}]]

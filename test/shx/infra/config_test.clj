@@ -2,7 +2,8 @@
   (:require [clojure.java.io :as io]
             [clojure.test :refer [deftest is testing]]
             [shx.infra.config :as cfg])
-  (:import [java.nio.file Files]))
+  (:import [java.io File]
+           [java.nio.file Files]))
 
 (defn- temp-dir []
   (str (Files/createTempDirectory "shx-test" (into-array java.nio.file.attribute.FileAttribute []))))
@@ -11,7 +12,7 @@
   (let [f (io/file dir name)]
     (io/make-parents f)
     (spit f content)
-    (.getPath f)))
+    (File/.getPath f)))
 
 (deftest read-fragment-tree-bubbling-test
   (let [dir (temp-dir)

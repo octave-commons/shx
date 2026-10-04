@@ -10,7 +10,18 @@
     (is (= {:paths-prepend ["a" "b" "c"]}
            (merge/merge-frag {:paths-prepend ["a" "b"]} {:paths-prepend ["c"]}))))
   (testing "scalars: later wins"
-    (is (= {:x 2} (merge/merge-frag {:x 1} {:x 2})))))
+    (is (= {:x 2} (merge/merge-frag {:x 1} {:x 2}))))
+  ;; These direct calls pin the "anything else: later wins" rule. Config
+  ;; validation rejects the :vars map/vector pair, but open config maps allow
+  ;; undeclared keys whose mixed shapes can reach merge-frag on the render path.
+  ;; An `and` -> `or` mutation can then throw before shell text is rendered.
+  (testing "type collision: later wins, whichever side the collection is on"
+    (is (= {:vars ["x"]}
+           (merge/merge-frag {:vars {:A "1"}} {:vars ["x"]})))
+    (is (= {:vars {:A "1"}}
+           (merge/merge-frag {:vars ["x"]} {:vars {:A "1"}})))
+    (is (= {:paths-prepend "b"}
+           (merge/merge-frag {:paths-prepend ["a"]} {:paths-prepend "b"})))))
 
 (deftest fold-fragment-tree-test
   (testing "grandchild values bubble to the top"
