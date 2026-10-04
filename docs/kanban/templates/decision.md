@@ -11,6 +11,14 @@ rejected without wasting the implementation.
 Guide: docs/kanban/writing-cards.md
 -->
 
+## Outcome
+
+<!-- The choice is recorded at an exact destination, with its reasoning and runner-up. -->
+
+## Context
+
+<!-- The situation and dated sources that establish why this question is real. -->
+
 ## The question
 
 <!-- One sentence, ending in a question mark. -->

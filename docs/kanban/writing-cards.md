@@ -334,7 +334,7 @@ rheos read-board --status incoming,breakdown       # scope your reads
 rheos search-tasks --query merge
 
 # create — a hand-authored Markdown body or a template is supported
-sed -e 's/<TITLE>/Assert merge-frag type-collision fallback/' \
+sed -e 's/<TITLE — imperative: the change, not the symptom>/Assert merge-frag type-collision fallback/' \
     docs/kanban/templates/task.md > /tmp/card.md
 $EDITOR /tmp/card.md
 rheos create --title "Assert merge-frag's type-collision fallback" \

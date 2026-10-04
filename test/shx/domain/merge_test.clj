@@ -11,10 +11,10 @@
            (merge/merge-frag {:paths-prepend ["a" "b"]} {:paths-prepend ["c"]}))))
   (testing "scalars: later wins"
     (is (= {:x 2} (merge/merge-frag {:x 1} {:x 2}))))
-  ;; The "anything else: later wins" rule from the ns docstring. A key whose
-  ;; shape differs between two fragments is ordinary hand-edited-EDN breakage,
-  ;; and without these the `and` guards above could each be an `or` — which
-  ;; reaches (merge {:A "1"} ["x"]) and throws while rendering a login shell.
+  ;; These direct calls pin the "anything else: later wins" rule. Config
+  ;; validation rejects the :vars map/vector pair, but open config maps allow
+  ;; undeclared keys whose mixed shapes can reach merge-frag on the render path.
+  ;; An `and` -> `or` mutation can then throw before shell text is rendered.
   (testing "type collision: later wins, whichever side the collection is on"
     (is (= {:vars ["x"]}
            (merge/merge-frag {:vars {:A "1"}} {:vars ["x"]})))

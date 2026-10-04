@@ -44,12 +44,13 @@ Under the `or` mutant, `(merge-frag {:vars {:A "1"}} {:vars ["x"]})` reaches
 `(merge {:A "1"} ["x"])` and throws `IllegalArgumentException: Vector arg to map
 conj must be a pair` instead of falling through to `:else y`.
 
-This is not hypothetical for envm. Fragments are hand-edited EDN, merged by
-`:merge` includes and then by hostname; a key that changes shape between two
-fragments is an ordinary editing mistake. The documented rule — later wins — is
-currently unenforced, and the failure mode is an exception raised while rendering
-a login shell, which is the one thing `AGENTS.md` › Quality contract says must
-never happen ("warn and degrade, never wedge").
+The `:vars` map/vector example above is rejected by config validation in the
+top-level config and hostname overrides; `read-fragment-tree` discards invalid
+fragments. However, `Fragment` is an open map. A schema-valid config can contain
+an undeclared key with different value shapes across fragments or a hostname
+override. Those values reach `merge-frag` before `shx render` renders the shell.
+If either `and` guard becomes `or`, such a collision can raise an exception on
+the login-shell path.
 
 ## Acceptance criteria
 
