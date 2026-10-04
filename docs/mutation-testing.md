@@ -9,7 +9,10 @@ bin/mutate watch           # continuous mutation testing on file change
 bin/mutate clean           # drop the sandbox coverage index
 bin/mutate mutate --files src/shx/domain/merge.clj    # scope to one file
 
-bb mutate · bb mutate:survivors · bb mutate:gaps        # same, via babashka
+# Same commands via Babashka:
+bb mutate
+bb mutate:survivors
+bb mutate:gaps
 ```
 
 Coverage answers "was this line run?". Mutation testing answers the question that
@@ -115,11 +118,11 @@ vector in another. Under `or`, `(merge-frag {:vars {:A "1"}} {:vars ["x"]})`
 reaches `(merge {:A "1"} ["x"])` and throws `Vector arg to map conj must be a
 pair` instead of falling through to `:else y`.
 
-Not hypothetical for envm: fragments are hand-edited EDN merged by `:merge`
-includes and then by hostname, so a key that changes shape between two fragments
-is ordinary editing breakage — and the failure mode was an exception raised while
-rendering a login shell, which `AGENTS.md` › Quality contract says must never
-happen.
+These assertions test `merge-frag`'s direct "anything else: later wins" contract.
+They do not describe a supported login-shell render failure: schema validation
+rejects a map/vector collision on rendered keys in top-level configuration,
+including host overrides, and `read-fragment-tree` discards invalid fragments
+before merging.
 
 Closed by `merge-type-collision-untested`: three assertions in
 `merge_test.clj:12-23` pin the documented "anything else: later wins" rule,

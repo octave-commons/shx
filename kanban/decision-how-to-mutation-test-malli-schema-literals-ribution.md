@@ -39,8 +39,8 @@ executed *during* a test.
 
 ## Constraints
 
-- The number `bin/mutate` prints must mean one thing. Partitioning it in prose
-  (what `docs/mutation-testing.md` does today) is a stopgap, not an answer.
+- Removing schema-literal artefacts must not hide remaining attribution bugs.
+  Keep real test gaps distinct from covered sites whose attribution was lost.
 - No lying by omission. If schema constraints are not mutation-covered, that fact
   has to be visible somewhere a reader will hit it.
 - Heretic is pre-1.0 and experimental. A fix that depends on upstream behaviour
@@ -53,7 +53,9 @@ executed *during* a test.
 ### Option A — exclude `src/shx/law/*.clj` via `:exclude-files`
 
 Same mechanism already used for `cli.clj` and `infra/`. Report becomes 18 sites,
-5 killed, 2 survived, 11 no-coverage — every remaining number actionable.
+5 killed, 2 survived, 11 no-coverage in the first-run baseline. Excluding `law/`
+removes the schema-literal artefacts, but the remaining no-coverage list can still
+include lost attributions such as `shape/quote.clj:18` in later measurements.
 
 Costs: schema constraints are then never mutation-tested, and nothing in the
 report says so. Requires a line in `docs/mutation-testing.md` and a note in
@@ -92,14 +94,19 @@ output of the tool so far.
 
 ## Recommendation
 
-**A now, D filed alongside it.** Moderate confidence. A makes today's number
-honest with a one-line config change and is trivially reversible; D is the actual
-fix and costs nothing to ask for. C is rejected: the schemas are the contract, and
-they do not get reshaped to flatter a measurement.
+**A now, D filed alongside it.** Moderate confidence. A removes the known `law/`
+schema-literal artefacts with a one-line config change and is trivially reversible;
+D must address both load-time attribution and lost attribution. C is rejected:
+the schemas are the contract, and they do not get reshaped to flatter a measurement.
 
 The cost of A — "schema constraints are not mutation-covered" — is worth stating
 in `docs/mutation-testing.md` under Scope, next to the `cli`/`infra` exclusion it
 would join.
+
+The historical note below is retained as evidence. Its claim that A makes the
+printed number mean one thing is superseded: the remaining no-coverage list can
+still mix real gaps with covered sites such as `shape/quote.clj:18`. Keep that
+limitation visible and do not ratchet on the score.
 
 ## Acceptance criteria
 
@@ -108,8 +115,8 @@ would join.
 - [ ] If A: `heretic.edn` `:exclude-files` covers `src/shx/law/`, and
       `docs/mutation-testing.md`'s baseline block is re-measured, not edited by hand
 - [ ] If D: the upstream issue is linked here
-- [ ] `docs/mutation-testing.md` no longer needs the "two different things" table
-      to make its numbers readable
+- [ ] `docs/mutation-testing.md` retains the distinction between real gaps and
+      lost attributions in the remaining no-coverage sites after excluding `law/`
 
 ## Verification
 
