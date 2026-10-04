@@ -16,7 +16,7 @@ created_at: "2026-10-02T02:20:23.651Z"
 
 ## Outcome
 
-The shx CLI accepts `supervisor render|check|apply <target> <stack.edn>` for pm2, docker compose, systemd user units and Kubernetes. It validates the desired stack and, for `check` and `apply`, the live-state payload, prints a reviewable change plan, and invokes the corresponding adapter. `apply` requires an explicit target and stack path and reports what it changed.
+The shx CLI accepts `supervisor render|check|apply <target> <stack.edn>` with exactly four canonical target tokens: `pm2` (pm2), `compose` (docker compose), `systemd` (systemd user units) and `k8s` (Kubernetes). It validates the desired stack and, for `check` and `apply`, the live-state payload, prints a reviewable change plan, and invokes the corresponding adapter. `apply` requires an explicit target and stack path and reports what it changed.
 
 ## Context
 
@@ -28,7 +28,7 @@ Child of `shx-kanban-supervisor-ir`. The existing CLI (`src/shx/cli.clj`) only e
 - [ ] GIVEN live state equal to the fixture WHEN `supervisor check <target> <file>` runs THEN it reports zero diff for each target. A changed fixture names the changed unit.
 - [ ] GIVEN malformed desired data WHEN any command runs THEN it exits nonzero with the target and validation path. GIVEN malformed live data WHEN `check` or `apply` runs THEN it fails with the target/path, and `apply` invokes no mutation. `render` reads only desired data and does not require or query live state.
 - [ ] GIVEN an in-scope change and an out-of-scope resource WHEN `supervisor apply <target> <file>` runs THEN the printed plan names only the in-scope change and the out-of-scope resource remains untouched.
-- [ ] VERIFY: CLI tests call `-main` with stubbed I/O for all four targets, including the malformed case; help text documents the commands and the owned-scope boundary.
+- [ ] VERIFY: CLI tests call `-main` with stubbed I/O for each of the exact target strings `"pm2"`, `"compose"`, `"systemd"` and `"k8s"`, across `render`, `check` and `apply`, including the malformed case; help text lists those same four tokens, the commands and the owned-scope boundary. Unknown tokens (including `"docker"` and `"kubernetes"`) exit nonzero before adapter invocation; descriptive names are not additional aliases.
 
 ## Verification
 
