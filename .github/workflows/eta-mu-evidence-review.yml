@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: eta-mu evidence review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  caller_contract:
+    name: SHX review caller regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+      - run: node --test test/review_evidence_regression.cjs
+
+  evidence_review:
+    name: Evidence-first review (eta-mu)
+    needs: caller_contract
+    # Parent-authorized caller enablement with the selected merged Eta/Muse pair.
+    # Ready for hosted new-head qualification; local checks supply no native review.
+    if: ${{ github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository }}
+    uses: open-hax/eta-mu/.github/workflows/opencode-code-review.yml@694a2602709d130b2a60045a25537f1b4476ec1f
+    with:
+      pr_head_sha: ${{ github.event.pull_request.head.sha }}
+      model: opencode/mimo-v2.6-flash-free
+      opencode_version: 1.18.18
+      muse_revision: 0b9a91492c8355e6933dc2164d35668cb76d9e60
+      # Validated skills selection; parent owns hosted caller qualification.
+      agents_revision: 7fd3252e7663ad5e68be5e90429d126aa66c38c8
+      setup_eta_mu_toolchain: false
+      evidence_gates_script: |
+        export PATH="$RUNNER_TEMP/shx-review-toolchain/bin:$PATH"
+        run_gate bootstrap bash .github/scripts/shx-review-evidence.sh bootstrap
+        bootstrap_status="$(awk -F= '$1 == "bootstrap" {print $2}' "$statuses")"
+        if [[ "$bootstrap_status" == 0 ]]; then
+          run_gate lint bash .github/scripts/shx-review-evidence.sh analyze
+          run_gate test bash .github/scripts/shx-review-evidence.sh unit
+          run_gate caller_regressions node --test test/review_evidence_regression.cjs
+        else
+          printf '%s\n' lint=125 test=125 caller_regressions=125 >> "$statuses"
+          echo 'SHX bootstrap failed; dependent gates were not attempted.'
+        fi
+    secrets:
+      ETA_MU_APP_ID: ${{ secrets.ETA_MU_APP_ID }}
+      ETA_MU_APP_PRIVATE_KEY: ${{ secrets.ETA_MU_APP_PRIVATE_KEY }}
