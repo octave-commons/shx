@@ -42,6 +42,12 @@ A running host is a projection of a stack, the way `.bashrc` is a projection of 
 
 The whole epic is blocked by `shx-kanban-port-shx-to-cljc` and `shx-kanban-hexis-assembler`.
 
+## Acceptance criteria
+
+- [ ] GIVEN the shared valid fixture stack and stubbed target I/O WHEN `shx supervisor render|apply|check` targets each of pm2, docker compose, systemd user units and Kubernetes THEN rendering matches that target's golden fixture, `apply` converges only proven owned resources, subsequent `check` reports zero diff, and out-of-scope resources remain unchanged.
+- [ ] GIVEN malformed or incomplete live-state evidence WHEN `check` or `apply` runs THEN it reports a validation error with zero mutations; GIVEN valid desired data WHEN `render` runs THEN it reads no live state.
+- [ ] GIVEN the Knoxx dev stack described in one EDN stack and explicitly authorized pm2 operations on `stealth` WHEN the implementation is verified THEN apply/check reaches the declared stack with zero diff and leaves out-of-scope apps unchanged. These are future implementation acceptance conditions, not operations executed by this planning PR.
+
 ## Definition of done
 
 For each of pm2, docker compose, systemd user units and Kubernetes, a fixture stack renders, `apply` converges it, and `check` then reports zero diff, with resources outside the owned scope unchanged. A user can invoke each operation through `shx supervisor render|check|apply`. `check` and `apply` report a clear validation error for malformed live state. `render` validates desired data without reading live state. The Knoxx dev stack on `stealth` runs from one EDN stack this way on pm2.

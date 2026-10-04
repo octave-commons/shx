@@ -32,9 +32,29 @@ Missing or inconsistent target-user context fails before I/O. Pass the resolved
 directory as explicit rendering input and reuse the same binding for inventory,
 removal, `check` and `apply`, including commands against that user's manager.
 The resolved path alone does not grant permission to another user's units.
+Before `systemctl --user` inventories or acts on units, verify that the running
+manager's effective unit search path resolves each target from the resolved
+directory. Refuse reconciliation if it does not.
+
+Read `org.freedesktop.systemd1.Manager.UnitPath` from the already-running target
+user manager over the admitted user-bus connection, after verifying that the
+manager peer UID matches the explicitly authorized target UID. Bind rendering's
+home/environment and every manager operation to that same target identity;
+derive the effective search path from the manager, never the invoker's environment
+or `systemd-path`. Check ordered lookup and any loaded unit's `FragmentPath`
+against the selected directory, including higher-priority same-named files,
+links and masks. Missing, unsupported or inconsistent identity/path evidence
+refuses reconciliation; revalidate after reconnect and before mutation. These
+are future shared live-state evidence requirements, not an implemented manager
+query or a reason to start/reconfigure a manager to make the check pass.
 
 ## Acceptance criteria
 
+- [ ] GIVEN the manager started with the default `XDG_CONFIG_HOME` while the
+  target environment selects a custom directory, and same-named units exist in
+  both directories WHEN `check` or `apply` runs THEN it detects the manager-path
+  mismatch and refuses reconciliation without stopping a unit or removing a file.
+- [ ] GIVEN a correctly bound existing manager whose `UnitPath` resolves targets from the selected directory WHEN `check` or `apply` runs against stubbed I/O THEN the path check passes; GIVEN a wrong manager UID, an unavailable/unsupported `UnitPath`, a conflicting `FragmentPath` or a changed manager connection/lookup before mutation THEN reconciliation fails with zero mutations. Capture target identity, manager evidence and resolved unit paths in fixtures; changing the invoker's environment or substituting `systemd-path` output cannot turn a mismatch into a pass.
 - [ ] GIVEN the authorized target user's absolute home and unset or empty `XDG_CONFIG_HOME` WHEN rendering, inventory, removal, `check` or `apply` selects its unit directory THEN every operation uses that user's `$HOME/.config/systemd/user`; GIVEN a custom absolute `/srv/alice-config` THEN every operation uses `/srv/alice-config/systemd/user` instead.
 - [ ] GIVEN `XDG_CONFIG_HOME=relative/config` WHEN resolving the target directory THEN the invalid value is diagnosed and ignored, every operation uses the target-home default, and no relative-path or coordinator-home I/O occurs. Missing or inconsistent target-user identity/home/environment is refused before I/O.
 - [ ] GIVEN a stale disabled/unloaded encoded-prefix owned unit exists only in the authorized target user's custom config directory WHEN `check` and `apply` run THEN inventory reports it and removal affects only that owned file; unmanaged files and any same-named file in the default directory remain untouched. Retain the existing daemon-reload ordering assertions.
@@ -69,6 +89,7 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 - `src/shx/shape/bash.clj` — emitter dispatch; an unhandled head throws.
 - [Upstream systemd.unit user-mode load path](https://github.com/systemd/systemd/blob/main/man/systemd.unit.xml): user configuration uses `$XDG_CONFIG_HOME/systemd/user` or the target-home default.
 - [XDG Base Directory Specification, environment variables](https://specifications.freedesktop.org/basedir/latest/): paths must be absolute; unset/empty `XDG_CONFIG_HOME` defaults to `$HOME/.config` and relative values are invalid and ignored.
+- [Upstream systemd manager and unit properties](https://github.com/systemd/systemd/blob/main/man/org.freedesktop.systemd1.xml): `UnitPath` is the manager's active search path; `FragmentPath` identifies the file a loaded unit came from. [systemd-path](https://github.com/systemd/systemd/blob/main/man/systemd-path.xml) uses its invoked environment and need not reflect that manager.
 
 These directory and user-scope acceptance cases are future stubbed adapter
 fixtures. This planning amendment implements no adapter and executes no live
