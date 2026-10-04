@@ -20,10 +20,11 @@ created_at: "2026-10-01T23:34:27.999Z"
 
 ## Context
 
-First child of `shx-kanban-supervisor-ir`. Every emitter and adapter consumes this shape, so it lands first. The process command reuses the existing `:exec` node from `shx.law.ir` rather than redefining it.
+First child of `shx-kanban-supervisor-ir`. Every emitter and adapter consumes this shape, so it lands first. The process command reuses the existing `:exec` contract, currently defined in CLJ-only `shx.law.ir`, through one shared portable `shx.law.exec` (`.cljc`) schema boundary. Both the existing IR registry and `shx.law.supervisor` consume that boundary; the supervisor never requires the CLJ-only namespace or copies its schema.
 
 ## Acceptance criteria
 
+- [ ] GIVEN the shared `ExecArgs` and `:shx/exec` schema definitions extracted to `src/shx/law/exec.cljc` WHEN the existing IR registry and supervisor schema validate the same exec fixtures THEN both consume those definitions without changing the existing contract. Run the portable exec/supervisor fixtures on JVM Clojure, nbb and a compiled shadow-cljs test artifact; each target must report nonempty passing tests for valid argv/dir/env, empty argv, wrong field types and the same offending data paths. A CLJ-only transitive dependency, unavailable runner, failed compilation or empty suite fails portability; an unexecuted target is not evidence of support.
 - [ ] GIVEN a unit with `:exec` (whose existing `:dir` and `:env` fields, `src/shx/law/ir.clj:23-27`, are the **only** working-directory and environment authority), `:ports`, `:needs`, `:health`, `:restart`, `:replicas`, optional `:image`, `:volumes`, `:user` WHEN validated THEN it passes.
 - [ ] Optional fields may be absent but not nil. Pin these target-neutral shapes with at least one valid and invalid fixture each: `:ports` is a vector of unique endpoint maps with integer `:port` in 1–65535, optional integer `:publish` in 1–65535 and `:protocol` in `#{:tcp :udp}`; `:needs` is a vector of distinct nonblank declared unit names; `:health` is a map with nonempty string-vector `:argv`, positive integer `:interval-ms`, `:timeout-ms` and `:retries`; `:restart` is `:never`, `:on-failure` or `:always`; `:replicas` is a positive integer; `:image` and `:user` are nonblank strings; `:volumes` is a vector of maps with nonblank string `:source`, absolute string `:target` and boolean `:read-only?`. Reject unknown keys and wrong types. Health probes inherit the process `:exec` working directory/environment; these fields cannot introduce another authority. Target adapters report unsupported features explicitly.
 - [ ] GIVEN a unit that carries its own `:cwd` or `:env` WHEN validated THEN validation fails, naming the key and pointing at `:exec`'s `:dir`/`:env`, so no adapter has to pick a precedence.
@@ -58,9 +59,11 @@ bb check
 bb mutate   # nonzero KILLED mutants in shx.law.supervisor executable code, none surviving
 ```
 
+The implementation must also declare and run the JVM, nbb and compiled shadow-cljs portable fixture targets above, retaining commands, test counts and failures. The current JVM-only project configuration does not supply the latter two targets; this planning change does not claim they already run.
+
 ## Scope
 
-- `src/shx/law/supervisor.cljc`, `test/shx/law/supervisor_test.clj`
+- `src/shx/law/exec.cljc`, `src/shx/law/ir.clj` (delegate the existing exec definitions), `src/shx/law/supervisor.cljc`; portable exec/supervisor tests under `test/shx/law/` and the dependency/test-runner declarations needed for JVM, nbb and shadow-cljs
 - `heretic.edn` and `bin/mutate` (plus any Heretic dependency change in `deps.edn`): needed for the `.cljc` mutation-scan criterion
 
 ## Reference points
