@@ -133,7 +133,8 @@ that can disagree with it.
 
 ### Body — the sections, in order
 
-Only the first three are mandatory. Empty sections are worse than absent ones.
+Outcome, Context, Acceptance criteria, and Verification are mandatory. Empty
+optional sections are worse than absent ones.
 
 ```markdown
 # <Title as an imperative: the change, not the symptom>
