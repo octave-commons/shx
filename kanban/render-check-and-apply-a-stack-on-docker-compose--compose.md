@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:28.661Z"
 
 ## Outcome
 
-A stack renders to compose YAML; `check` diffs the stack against live docker compose state (`docker compose -p <scope> config` / `docker compose -p <scope> ps --all --format json`); `apply` converges live state for the compose project named by the target-validated `:stack/scope` and leaves every resource outside that scope untouched.
+A stack renders to compose YAML; `check` diffs that rendered stack against live docker compose state using `docker compose -f <rendered-stack.yml> -p <scope> config` and `docker compose -f <rendered-stack.yml> -p <scope> ps --all --format json`. Every Compose operation in `check` and `apply` uses the same explicitly supplied absolute rendered-file path and target-validated `:stack/scope` project name; `apply` converges live state for that project and leaves every resource outside that scope untouched.
 
 ## Context
 
@@ -30,7 +30,8 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law`, `supervisor-i
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the compose golden file.
 - [ ] GIVEN a stack using a feature docker compose cannot express WHEN rendered THEN the unsupported-feature report equals its compose golden file, and nothing is silently dropped.
 - [ ] GIVEN live state equal to the stack WHEN `check` runs THEN it reports zero diff; GIVEN one changed unit THEN it reports exactly that unit.
-- [ ] GIVEN an exited in-scope container that the desired stack no longer declares in the live-state fixture WHEN `check` queries `docker compose -p <scope> ps --all --format json` THEN the container is included in the validated inventory and appears in the diff rather than being omitted as if absent.
+- [ ] GIVEN a working directory containing an unrelated `compose.yaml` and a rendered stack file elsewhere WHEN `check` and `apply` run against stubbed process I/O THEN every Compose invocation passes `-f` with that rendered file's absolute path and `-p` with the same target-validated scope; `config`, `ps --all --format json` and mutation operations use the rendered stack, never the unrelated file. Assert the captured argv and configuration-dependent fixture results.
+- [ ] GIVEN an exited in-scope container that the desired stack no longer declares in the live-state fixture WHEN `check` queries `docker compose -f <rendered-stack.yml> -p <scope> ps --all --format json` THEN the container is included in the validated inventory and appears in the diff rather than being omitted as if absent.
 - [ ] GIVEN a resource inside the owned scope that the stack no longer declares WHEN `apply` runs THEN it is stopped/removed; GIVEN a resource outside the scope THEN it is untouched (both asserted).
 
 ## Verification
@@ -44,11 +45,12 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 - `src/shx/shape/supervisor_compose.cljc`, `src/shx/infra/supervisor_compose.clj`, golden files under `test/resources/supervisor/compose/`
 - `heretic.edn` `:exclude-files`: add `src/shx/infra/supervisor_compose.clj` (path-suffix match, `heretic.edn:30-36`), or it silently joins the permanent no-coverage list.
-- `test/shx/shape/supervisor_compose_test.clj` (goldens) and `test/shx/infra/supervisor_compose_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, exited-container inventory/diff, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
+- `test/shx/shape/supervisor_compose_test.clj` (goldens) and `test/shx/infra/supervisor_compose_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, explicit rendered-file/project selection from an unrelated Compose directory, exited-container inventory/diff, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points
 
 - [Compose project-name constraints](https://docs.docker.com/compose/how-tos/project-name/) — checked 2026-10-03; target validation is separate from the target-neutral IR.
+- [Compose file selection](https://docs.docker.com/reference/cli/docker/compose/) — `-f` selects the configuration path; `-p` selects the project name.
 - `src/shx/shape/bash.clj` — emitter dispatch; an unhandled head throws.
 
 ## Anti-patterns
@@ -59,6 +61,6 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 ---
 Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
 
-Review round 5 (Codex) on octave-commons/shx#2: adapter now depends on supervisor-ir-live-state-law and fails closed on invalid external payloads before check/apply; commit pending.
+Review round 5 (Codex) on octave-commons/shx#2: adapter now depends on supervisor-ir-live-state-law and fails closed on invalid external payloads before check/apply.
 
 ---

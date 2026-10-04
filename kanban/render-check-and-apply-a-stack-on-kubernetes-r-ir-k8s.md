@@ -16,7 +16,7 @@ created_at: "2026-10-01T23:34:29.115Z"
 
 ## Outcome
 
-A stack renders to Deployment and Service manifests; `check` diffs the stack against live Kubernetes state (kubectl get -o json); `apply` converges live state for resources in the stack's namespace that carry the adapter's own ownership marker, label `shx.dev/managed-by=<target-validated :stack/scope>` (and `app.kubernetes.io/managed-by=shx`), written only by this adapter. `app.kubernetes.io/part-of` is descriptive and never authorises deletion and leaves every resource outside that scope untouched.
+A stack renders to Deployment and Service manifests; `check` and `apply` obtain separate namespace-scoped inventories using `kubectl get deployments -n <namespace> -o json` and `kubectl get services -n <namespace> -o json`. Both lists must succeed, pass the target live-state contract and be complete before planning removals; if the adapter consumes paginated results directly, it must collect every page of each kind. `check` diffs the stack against that validated inventory; `apply` converges live state for resources in the stack's namespace that carry the adapter's own ownership marker, label `shx.dev/managed-by=<target-validated :stack/scope>` and `app.kubernetes.io/managed-by=shx`, written only by this adapter. `app.kubernetes.io/part-of` is descriptive and never authorises deletion; every resource outside the owned scope remains untouched.
 
 ## Context
 
@@ -26,6 +26,9 @@ Child of `shx-kanban-supervisor-ir`; consumes `supervisor-ir-law`, `supervisor-i
 
 - [ ] GIVEN a target-neutral valid stack WHEN `render`, `check` or `apply` targets Kubernetes THEN validate `:stack/scope` as a nonempty label value of at most 63 characters, beginning/ending with an ASCII letter or digit and containing only ASCII letters, digits, `-`, `_` and `.` between them. Invalid examples `Team A`, `team/service`, `-svc`, `svc-` and a 64-character scope fail with a field path before process invocation or mutation; valid `Svc.prod_2` passes. Do not silently normalize or truncate scopes.
 - [ ] GIVEN truncated, malformed or version-shifted live output WHEN `check` or `apply` runs THEN the target live-state contract rejects it with a path and no mutation occurs; a valid empty response remains distinguishable.
+- [ ] GIVEN either the Deployment or Service list is failed or omitted while the other list succeeds with zero items WHEN `check` or `apply` runs THEN inventory is rejected, no removals are planned and no mutation occurs. Cover both kinds as the failed and omitted list; never substitute an empty list for missing or failed evidence.
+- [ ] GIVEN successful, complete and schema-valid Deployment and Service lists both containing zero items in the expected namespace WHEN `check` or `apply` reads inventory THEN it establishes zero live resources rather than a read failure.
+- [ ] GIVEN directly paginated Deployment and Service list fixtures with an owned stale resource on a later page WHEN `check` or `apply` runs THEN every continuation is followed until an empty `metadata.continue` value for each kind, and the later-page resource appears in the validated inventory and removal plan. A missing or failed later page for either kind rejects the entire inventory and permits no removals or mutation.
 - [ ] VERIFY: `heretic.edn` `:exclude-files` lists `src/shx/infra/supervisor_k8s.clj`, and `bb mutate` reports no no-coverage sites in that file.
 - [ ] GIVEN the shared fixture stack (features every target supports) WHEN rendered THEN output equals the k8s golden file.
 - [ ] GIVEN a stack using a feature Kubernetes cannot express WHEN rendered THEN the unsupported-feature report equals its k8s golden file, and nothing is silently dropped.
@@ -45,11 +48,12 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 
 - `src/shx/shape/supervisor_k8s.cljc`, `src/shx/infra/supervisor_k8s.clj`, golden files under `test/resources/supervisor/k8s/`
 - `heretic.edn` `:exclude-files`: add `src/shx/infra/supervisor_k8s.clj` (path-suffix match, `heretic.edn:30-36`), or it silently joins the permanent no-coverage list.
-- `test/shx/shape/supervisor_k8s_test.clj` (goldens) and `test/shx/infra/supervisor_k8s_test.clj`: `check` and `apply` against stubbed process I/O, covering the zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation criteria without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
+- `test/shx/shape/supervisor_k8s_test.clj` (goldens) and `test/shx/infra/supervisor_k8s_test.clj`: `check` and `apply` against stubbed process I/O, covering separate namespace-scoped Deployment/Service queries, either kind failed/omitted, both kinds genuinely empty, all pages and later-page failure for either kind, zero-diff, one-changed-unit, in-scope-removal and out-of-scope-preservation without a live supervisor. Heretic excludes `infra/`, so these tests are the only evidence for the safety criteria.
 
 ## Reference points
 
 - [Kubernetes label-value constraints](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) — checked 2026-10-03; both ownership labels and the namespace remain required.
+- [Kubernetes list pagination](https://kubernetes.io/docs/reference/using-api/api-concepts/#retrieving-large-results-sets-in-chunks) — direct list clients follow `metadata.continue` until the complete collection is retrieved.
 - `src/shx/shape/bash.clj` — emitter dispatch; an unhandled head throws.
 
 ## Anti-patterns
@@ -60,6 +64,6 @@ bb mutate   # nonzero mutants generated for the emitter namespace, none survivin
 ---
 Body revised while incoming, during planning review on octave-commons/shx#2 (commits 3ca71e4, 4c5ae88, b24eb9f; see the settled review threads). The task-created event holds the original body; the Markdown body is the current contract.
 
-Review round 5 (Codex) on octave-commons/shx#2: adapter now depends on supervisor-ir-live-state-law and fails closed on invalid external payloads before check/apply; commit pending.
+Review round 5 (Codex) on octave-commons/shx#2: adapter now depends on supervisor-ir-live-state-law and fails closed on invalid external payloads before check/apply.
 
 ---
