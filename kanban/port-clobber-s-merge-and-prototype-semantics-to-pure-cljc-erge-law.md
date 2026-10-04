@@ -24,6 +24,7 @@ Source: `open-hax/foresight` `clobber/src/pm2_clj/merge.cljs` and `clobber/src/p
 
 ## Acceptance criteria
 
+- [ ] GIVEN the exact prospective composition envelope and input/result fixtures in [supervisor-ir-law](define-the-supervisor-unit-stack-ir-as-malli-schemas-in-cljc-r-ir-law.md) WHEN materialized THEN use that shared input validation and explicit order: realize `:extends`, ordered `:mixins`, own patch; fold base and ordinary fragments; fold only the selected profile's ordered fragments; consume directives; rewrite scope and references; validate closed final IR. Do not validate partial patches as complete units or carry composition metadata into emitters. Multiple fragments for one selected profile are preserved in order. The new input shape rejects invalid selectors/references before assembly; source parity below applies to valid compositions.
 - [ ] GIVEN base and override unit vectors sharing a `:name` WHEN merged THEN the result has one unit per name, deep-merged, in first-seen order (regression for the shadowing bug).
 - [ ] GIVEN an override value `:shx.domain.supervisor-merge/remove`, including one read from an EDN profile patch, WHEN merged THEN the key is absent from the result. This exact qualified keyword is the portable removal value shared with `supervisor-ir-law`; the recovered source's `(def remove ::remove)` above is historical Clojure reader syntax.
 - [ ] GIVEN a profile `:prod` that sets `{:replicas 2}` on unit `api` WHEN applied to fixture stack `{api, worker}` THEN `api` has `:replicas 2`, all of `worker` and every other `api` key are unchanged, and the result equals the golden `test/resources/supervisor/merge/profile-prod.edn`.
@@ -42,7 +43,7 @@ bb mutate   # nonzero mutants generated for shx.domain.supervisor-merge (needs s
 
 ## Scope
 
-- `src/shx/domain/supervisor_merge.cljc`, `test/shx/domain/supervisor_merge_test.clj`
+- `src/shx/domain/supervisor_merge.cljc`, `test/shx/domain/supervisor_merge_test.clj`; shared portable composition input/result fixtures under `test/resources/supervisor/merge/`, consumed by the supervisor-law card's JVM, nbb and compiled shadow-cljs targets
 
 ## Reference points
 
