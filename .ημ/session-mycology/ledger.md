@@ -28,3 +28,13 @@
   spore: none
   receipt-refs: "receipts.edn#sha256:393e0f01e18ec4efa6caba755358f7c8407e0da9fe43c65417949af61b7d1a94"
   note: "State credential exclusion for every scope and descendant; list exact accountability files. Preserve incoming lifecycle and bind hosted proof to its actual old head. No new spore."
+
+- ts: 2026-10-23T08:39:48.844355Z
+  session: codex/foresight-antigravity-rollout
+  task: Publish shx R4 caller and incoming planning clarification
+  p-efficiency: 0.95
+  p-friction: 0.05
+  p-skill-candidate: 0.0
+  spore: none
+  receipt-refs: 255317614b09d2bbe8345ac8aa40e8f2752216dfc007a8bb6f2e03f65d6f1038
+  note: "Keep runtime pins in generated callers; preserve incoming frontmatter and append-only accountability. Shared service proof and member exact-head hosted proof remain distinct."

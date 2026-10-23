@@ -21,16 +21,18 @@ This is an incoming source proposal for `octave-commons/shx`, following
 [eta-mu provider planning](https://github.com/open-hax/eta-mu/pull/364). The root planning record is commit
 `1f3f7317012e23d7ec0f35a7e22b2b01cdff65b3`. Eta-mu owns reviewer semantics;
 Muse provides only organization-local compatibility bytes for Octave Commons.
-The checked-in caller is authoritative for its current full immutable workflow
-pin; the installed runtime is exactly `3bcf27bef296f9349fdf4997df256a617da5f120`.
+The checked-in caller records the exact immutable workflow and runtime pins.
+The deployed trusted runtime must match that runtime pin; deployment proof is
+recorded separately from this incoming planning card.
 
 ## Acceptance criteria
 
 - [ ] VERIFY: the caller contains one full 40-character lowercase hexadecimal
   organization-local workflow pin matching the approved coordinator revision;
   the count of mutable workflow references is zero.
-- [ ] VERIFY: `review_runtime_revision` is exactly
-  `3bcf27bef296f9349fdf4997df256a617da5f120`.
+- [ ] VERIFY: `review_runtime_revision` is one full 40-character lowercase
+  hexadecimal commit matching the reviewed coordinator plan and installed
+  trusted runtime; the count of mutable runtime references is zero.
 - [ ] VERIFY: the model is exactly `gemini-3.8-flash-high` and the count of
   fallback models is zero.
 - [ ] VERIFY: the caller grants only `contents: read` and `pull-requests: read`;
@@ -91,7 +93,7 @@ Existing deterministic repository checks and required review remain necessary.
 ## Status and non-goals
 
 This document remains **incoming**. It is hand-authored planning input, with no
-Rheos admission, transition, write-id or engine event asserted. Hosted worker
-registration, exact-head review/CI, source adoption and end-to-end qualification
-remain pending. No merge, deployment, credential copying, branch-policy change,
+Rheos admission, transition, write-id or engine event asserted. Shared worker
+registration has been observed; this repository's final source adoption,
+exact-head review/CI and hosted qualification remain pending. No merge, deployment, credential copying, branch-policy change,
 new board engine, or application/runtime implementation is authorized here.
