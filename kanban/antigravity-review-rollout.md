@@ -5,9 +5,14 @@ status: incoming
 type: task
 priority: P1
 points: 2
-labels: ci, review, antigravity, hygiene
+labels: shx, docs
 category: chores
 ---
+
+## Outcome
+
+This repository consumes the shared advisory reviewer with the exact requested
+`gemini-3.8-flash-high` model through its existing review and qualification process.
 
 ## Context
 
@@ -19,38 +24,51 @@ Muse provides only organization-local compatibility bytes for Octave Commons.
 The checked-in caller is authoritative for its current full immutable workflow
 pin; the installed runtime is exactly `3bcf27bef296f9349fdf4997df256a617da5f120`.
 
-## Outcome
-
-This repository consumes the shared advisory reviewer with the exact requested
-`gemini-3.8-flash-high` model through its existing review and qualification process.
-
-## Scope
-
-- `.github/workflows/antigravity-review.yml` is the thin caller proposal.
-- This incoming planning document and append-only local provenance record scope.
-- The expected reusable workflow route is `octave-commons/muse/.github/workflows/antigravity-code-review.yml`.
-
 ## Acceptance criteria
 
-- [ ] Independently verify the caller's exact 40-character workflow pin and runtime
-  pin against the reviewed coordinator plan; runtime must be
-  `3bcf27bef296f9349fdf4997df256a617da5f120` and model must be exactly
-  `gemini-3.8-flash-high`, with no fallback model or mutable reference.
-- [ ] Preserve contents/pull-request read-only permissions, exact PR base/head
-  binding, and absence of forwarded secrets or GitHub signing/write credentials.
-- [ ] Verify the preinstalled trusted runtime, pinned CLI/Bubblewrap checksums,
-  strict read/write/command/MCP-denial profile, finish-only terminal formatting,
-  sanitized model environment, complete bounded input and cleanup on every exit.
-- [ ] Qualify the organization-local restricted runner group against the exact
-  immutable reusable-workflow revision and approved caller repositories before
-  activating authenticated persistent workers. Verify mirror byte equality for
-  the Octave Commons route.
-- [ ] Run this repository's existing required checks and obtain fresh exact-head
-  review. Preserve package-manager, application, branch-protection and approval
-  policies; imported CLI artifacts grant no native approval or merge credit.
-- [ ] Observe a real hosted execution with the selected model and inspect exact
-  revision/diff binding, complete scope, retained native output, and failure
-  behavior. Worker unavailability or missing authentication remains unavailable.
+- [ ] VERIFY: the caller contains one full 40-character lowercase hexadecimal
+  organization-local workflow pin matching the approved coordinator revision;
+  the count of mutable workflow references is zero.
+- [ ] VERIFY: `review_runtime_revision` is exactly
+  `3bcf27bef296f9349fdf4997df256a617da5f120`.
+- [ ] VERIFY: the model is exactly `gemini-3.8-flash-high` and the count of
+  fallback models is zero.
+- [ ] VERIFY: the caller grants only `contents: read` and `pull-requests: read`;
+  forwarded secrets and write/signing/deployment credentials each occur zero times.
+- [ ] GIVEN a PR whose current head or base differs from the requested immutable
+  tuple, WHEN preflight runs, THEN it fails before scheduling native inference.
+- [ ] VERIFY: the preinstalled runtime's HEAD matches the declared revision and
+  its nonignored tracked/untracked dirty-path count is zero.
+- [ ] VERIFY: the native CLI SHA-256 equals its approved operator pin;
+  every unapproved CLI digest fixture is refused.
+- [ ] VERIFY: the Bubblewrap SHA-256 equals its approved operator pin;
+  every unapproved Bubblewrap digest fixture is refused.
+- [ ] GIVEN a candidate attempting read, write, command, or MCP effects, WHEN the
+  strict observer profile runs, THEN the permitted effect count is zero.
+- [ ] VERIFY: the native invocation emits exactly one finish-only terminal
+  result, without streaming terminal updates.
+- [ ] VERIFY: the native model environment contains zero GitHub
+  write/signing/deployment credential variables.
+- [ ] VERIFY: retained input passes all runtime size and complete-scope
+  admission checks with zero refused or truncated input sections.
+- [ ] VERIFY: organization group readback admits exactly the approved immutable
+  workflow and repository-ID set, with zero unrestricted workflow entries.
+- [ ] VERIFY: the Octave Commons mirror SHA-256 equals the approved eta-mu
+  workflow SHA-256.
+- [ ] GIVEN a completed or failed inference attempt, WHEN cleanup finishes, THEN
+  its isolated model workspace and owned child process count are both zero.
+- [ ] VERIFY: `bin/analyze --strict`, caller syntax validation, and the mapped
+  rollout check each exit zero.
+- [ ] VERIFY: the package-manager, application, branch-protection and approval
+  policy diff contains zero changes in this slice.
+- [ ] VERIFY: the current PR head has fresh eligible review and all existing
+  required checks satisfied; imported CLI artifacts supply zero native approvals.
+- [ ] GIVEN a real hosted invocation, WHEN evidence is inspected, THEN its
+  base/head and diff digest match the requested input, every admitted changed
+  path is covered, and retained native output records the exact selected model.
+- [ ] GIVEN worker unavailability, missing login, or malformed model output,
+  WHEN the workflow runs, THEN it records failure or unavailability and emits
+  zero successful review results.
 
 ## Verification
 
@@ -59,6 +77,12 @@ then the root rollout tool's exact mapped `check` documented in
 [Foresight rollout notes](https://github.com/open-hax/foresight/pull/145/files).
 Those local source checks do not establish hosted runner or model availability.
 Existing deterministic repository checks and required review remain necessary.
+
+## Scope
+
+- `.github/workflows/antigravity-review.yml` is the thin caller proposal.
+- This incoming planning document and append-only local provenance record scope.
+- The expected reusable workflow route is `octave-commons/muse/.github/workflows/antigravity-code-review.yml`.
 
 ## Status and non-goals
 
