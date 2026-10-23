@@ -76,7 +76,8 @@ recorded separately from this incoming planning card.
 
 ## Verification
 
-Run `actionlint .github/workflows/antigravity-review.yml` and `git diff --check`,
+Run `bin/analyze --strict`, `actionlint .github/workflows/antigravity-review.yml`,
+and `git diff --check`,
 then the root rollout tool's exact mapped `check` documented in
 [Foresight rollout notes](https://github.com/open-hax/foresight/pull/145/files).
 Those local source checks do not establish hosted runner or model availability.
