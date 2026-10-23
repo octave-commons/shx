@@ -47,8 +47,10 @@ pin; the installed runtime is exactly `3bcf27bef296f9349fdf4997df256a617da5f120`
   strict observer profile runs, THEN the permitted effect count is zero.
 - [ ] VERIFY: the native invocation emits exactly one finish-only terminal
   result, without streaming terminal updates.
-- [ ] VERIFY: the native model environment contains zero GitHub
-  write/signing/deployment credential variables.
+- [ ] VERIFY: the AGY process and every model descendant receive zero GitHub
+  credentials of any scope, including read-only tokens and GitHub App tokens;
+  environment captures with injected credential variables show zero inherited
+  credential-bearing entries.
 - [ ] VERIFY: retained input passes all runtime size and complete-scope
   admission checks with zero refused or truncated input sections.
 - [ ] VERIFY: organization group readback admits exactly the approved immutable
@@ -81,7 +83,9 @@ Existing deterministic repository checks and required review remain necessary.
 ## Scope
 
 - `.github/workflows/antigravity-review.yml` is the thin caller proposal.
-- This incoming planning document and append-only local provenance record scope.
+- `kanban/antigravity-review-rollout.md` is the incoming planning document.
+- `receipts.edn` is the append-only local accountability record.
+- `.ημ/session-mycology/ledger.md` is the append-only reflection record.
 - The expected reusable workflow route is `octave-commons/muse/.github/workflows/antigravity-code-review.yml`.
 
 ## Status and non-goals
